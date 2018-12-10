@@ -215,3 +215,11 @@ func TestGetNodeAndCPU(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkGetCPUAndNode(b *testing.B) {
+	b.RunParallel(func(bp *testing.PB) {
+		for bp.Next() {
+			GetCPUAndNode()
+		}
+	})
+}
