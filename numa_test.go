@@ -172,9 +172,6 @@ func TestGetNodeAndCPU(t *testing.T) {
 	if !Available() {
 		t.Skip("not available")
 	}
-	if CPUCount() < 2 || NodeCount() < 2 {
-		t.Skipf("cpu %d node %d", CPUCount(), NodeCount())
-	}
 	var (
 		nodem  = NewBitmask(NodePossibleCount())
 		mu     sync.Mutex
