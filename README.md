@@ -1,6 +1,6 @@
 # NUMA
 
-[![Build Status](https://travis-ci.org/lrita/numa.svg?branch=master)](https://travis-ci.org/lrita/numa)
+[![Build Status](https://travis-ci.org/lrita/numa.svg?branch=master)](https://travis-ci.org/lrita/numa) [![GoDoc](https://godoc.org/github.com/lrita/numa?status.png)](https://godoc.org/github.com/lrita/numa) [![codecov](https://codecov.io/gh/lrita/numa/branch/master/graph/badge.svg)](https://codecov.io/gh/lrita/numa)
 
 NUMA is a utility library, which is written in go. It help us to write
 some NUMA-AWARED code.
