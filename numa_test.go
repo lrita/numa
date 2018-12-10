@@ -165,7 +165,7 @@ func TestMBind(t *testing.T) {
 	assert := require.New(t)
 
 	assert.Equal(syscall.EINVAL,
-		MBind(unsafe.Pointer(uintptr(0x123)), 100, MPOL_DEFAULT, 0, nil))
+		MBind(unsafe.Pointer(t), 100, MPOL_DEFAULT, 0, nil))
 }
 
 func TestGetNodeAndCPU(t *testing.T) {
