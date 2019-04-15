@@ -133,8 +133,8 @@ type vdsoInfo struct {
 	valid bool
 
 	/* Load information */
-	loadAddr   uintptr
-	loadOffset uintptr /* loadAddr - recorded vaddr */
+	loadAddr   unsafe.Pointer
+	loadOffset unsafe.Pointer /* loadAddr - recorded vaddr */
 
 	/* Symbol table */
 	symtab     *[vdsoSymTabSize]elfSym
@@ -172,9 +172,9 @@ func gostringnocopy(str *byte) string
 
 func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 	info.valid = false
-	info.loadAddr = uintptr(unsafe.Pointer(hdr))
+	info.loadAddr = unsafe.Pointer(hdr)
 
-	pt := unsafe.Pointer(info.loadAddr + uintptr(hdr.e_phoff))
+	pt := unsafe.Pointer(uintptr(info.loadAddr) + uintptr(hdr.e_phoff))
 
 	// We need two things from the segment table: the load offset
 	// and the dynamic table.
@@ -186,11 +186,11 @@ func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 		case _PT_LOAD:
 			if !foundVaddr {
 				foundVaddr = true
-				info.loadOffset = info.loadAddr + uintptr(pt.p_offset-pt.p_vaddr)
+				info.loadOffset = unsafe.Pointer(uintptr(info.loadAddr) + uintptr(pt.p_offset-pt.p_vaddr))
 			}
 
 		case _PT_DYNAMIC:
-			dyn = (*[vdsoDynSize]elfDyn)(unsafe.Pointer(info.loadAddr + uintptr(pt.p_offset)))
+			dyn = (*[vdsoDynSize]elfDyn)(unsafe.Pointer(uintptr(info.loadAddr) + uintptr(pt.p_offset)))
 		}
 	}
 
@@ -207,7 +207,7 @@ func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 	info.verdef = nil
 	for i := 0; dyn[i].d_tag != _DT_NULL; i++ {
 		dt := &dyn[i]
-		p := info.loadOffset + uintptr(dt.d_val)
+		p := unsafe.Pointer(uintptr(info.loadOffset) + uintptr(dt.d_val))
 		switch dt.d_tag {
 		case _DT_STRTAB:
 			info.symstrings = (*[vdsoSymStringsSize]byte)(unsafe.Pointer(p))
@@ -296,7 +296,7 @@ func vdsoParseSymbols(name string, info *vdsoInfo, version int32) uintptr {
 			return 0
 		}
 
-		return info.loadOffset + uintptr(sym.st_value)
+		return uintptr(info.loadOffset) + uintptr(sym.st_value)
 	}
 
 	if !info.isGNUHash {
@@ -357,13 +357,14 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	var base unsafe.Pointer
 	auxv := (*(*[128]uintptr)(unsafe.Pointer(&d[0])))[:len(d)/int(unsafe.Sizeof(uintptr(0)))]
 	for i := 0; auxv[i] != _AT_NULL; i += 2 {
 		tag, val := auxv[i], auxv[i+1]
 		if tag != _AT_SYSINFO_EHDR || val == 0 {
 			continue
 		}
-		vdsoInitFromSysinfoEhdr(&vdsoinfo, (*elfEhdr)(unsafe.Pointer(val)))
+		vdsoInitFromSysinfoEhdr(&vdsoinfo, (*elfEhdr)(unsafe.Pointer(uintptr(base)+val)))
 	}
 	vdsoVersion = vdsoFindVersion(&vdsoinfo, &vdsoLinuxVersion)
 	initVDSOAll()
