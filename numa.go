@@ -157,11 +157,11 @@ func RunningNodesMask() (Bitmask, error) {
 
 // RunningCPUMask return the cpu bitmask of current process running on.
 func RunningCPUMask() (Bitmask, error) {
-	cpumask := NewBitmask(CPUCount())
+	cpumask := NewBitmask(CPUPossibleCount())
 	if _, err := GetSchedAffinity(0, cpumask); err != nil {
 		return nil, err
 	}
-	return cpumask, nil
+	return cpumask[:len(NewBitmask(CPUCount()))], nil
 }
 
 // NodeToCPUMask returns the cpumask of given node id.

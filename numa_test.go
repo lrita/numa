@@ -12,7 +12,7 @@ import (
 
 func TestNotAvailable(t *testing.T) {
 	if Available() {
-		t.Skip()
+		t.Skip("TestNotAvailable")
 	}
 	assert := require.New(t)
 	_, err := GetMemPolicy(nil, nil, 0)

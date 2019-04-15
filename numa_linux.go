@@ -12,7 +12,6 @@ import (
 	"unsafe"
 
 	"github.com/intel-go/cpuid"
-	"golang.org/x/sys/unix"
 )
 
 func init() {
@@ -384,10 +383,5 @@ func GetCPUAndNode() (cpu int, node int) {
 	if fastway {
 		return fastcpuandnode()
 	}
-	_, _, e1 := syscall.RawSyscall(unix.SYS_GETCPU,
-		uintptr(unsafe.Pointer(&cpu)), uintptr(unsafe.Pointer(&node)), 0)
-	if e1 != 0 {
-		panic(fmt.Errorf("syscall SYS_GETCPU failed:%v", e1))
-	}
-	return
+	return getcpu()
 }
