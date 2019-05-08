@@ -374,14 +374,16 @@ func NodeMemSize64(node int) (total int64, free int64, err error) {
 
 var fastway = cpuid.HasFeature(cpuid.RDTSCP)
 
-// The linux kernel will fill the node cpu id in the private data of each cpu.
-// arch/x86/kernel/vsyscall_64.c@vsyscall_set_cpu
-func fastcpuandnode() (cpu int, node int)
+func getcpu()
 
 // GetCPUAndNode returns the node id and cpu id which current caller running on.
-func GetCPUAndNode() (cpu int, node int) {
-	if fastway {
-		return fastcpuandnode()
-	}
-	return getcpu()
-}
+//
+// equal:
+//
+// if fastway {
+// 	call RDTSCP
+//  The linux kernel will fill the node cpu id in the private data of each cpu.
+//  arch/x86/kernel/vsyscall_64.c@vsyscall_set_cpu
+// }
+// call vdsoGetCPU
+func GetCPUAndNode() (cpu int, node int)

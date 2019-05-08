@@ -45,6 +45,16 @@ func TestGetNodeAndCPU2(t *testing.T) {
 	}
 	wg.Wait()
 
+	for i := 0; i < 2*CPUCount(); i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			cpu, node := GetCPUAndNode()
+			t.Logf("TestGetNodeAndCPU2 cpu %v node %v", cpu, node)
+		}()
+	}
+	wg.Wait()
+
 	nmask := NodeMask()
 	for i := 0; i < nodem.Len(); i++ {
 		if !nodem.Get(i) {

@@ -43,8 +43,3 @@ func TestVdsoSym(t *testing.T) {
 		}
 	}
 }
-
-func TestGetcpu(t *testing.T) {
-	cpu, node := getcpu()
-	t.Logf("%x - %x - %x", cpu, node, vdsoGetCPU)
-}

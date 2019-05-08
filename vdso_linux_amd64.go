@@ -384,5 +384,3 @@ func initVDSODefault(name string, def uintptr) uintptr {
 func initVDSOAll() {
 	vdsoGetCPU = initVDSODefault("__vdso_getcpu", 0xffffffffff600800)
 }
-
-func getcpu() (cpu int, node int)
