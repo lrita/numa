@@ -7,12 +7,12 @@
 
 ## Availability
 
-* [Gridfinity GitLab](https://gitlab.gridfinity.com/jeff/go-numa)
-* [GitHub](https://github.com/johnsonjh/gonuma)
+*  [Gridfinity GitLab](https://gitlab.gridfinity.com/jeff/go-numa)
+*  [GitHub](https://github.com/johnsonjh/gonuma)
 
 ## Original Author
 
-* [lrita@163.com](https://github.com/lrita/numa)
+*  [lrita@163.com](https://github.com/lrita/numa)
 
 ## Usage
 
@@ -20,18 +20,18 @@
  package main
 
  import (
-  gonuma "github.com/johnsonjh/gonuma"
+    gonuma "github.com/johnsonjh/gonuma"
  )
 
  type object struct {
   X int
-  _ [...]byte // padding to page size.
+    _ [...]byte // padding to page size.
   }
 
  var objects = make([]object, gonuma.CPUCount())
 
  func fnxxxx() {
-  cpu, node := gonuma.GetCPUAndNode()
-  objects[cpu].X = xx
+    cpu, node := gonuma.GetCPUAndNode()
+    objects[cpu].X = xx
  }
 ```
