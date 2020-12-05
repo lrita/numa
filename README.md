@@ -1,8 +1,8 @@
 # gonuma
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a688d07faaa4e848f59ec49fdb663bc)](https://app.codacy.com/gh/johnsonjh/gonuma?utm_source=github.com&utm_medium=referral&utm_content=johnsonjh/gonuma&utm_campaign=Badge_Grade)
 [![License](http://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/johnsonjh/gonuma/master/LICENSE)
 [![GoReportCard](https://goreportcard.com/badge/github.com/johnsonjh/gonuma)](https://goreportcard.com/report/github.com/johnsonjh/gonuma)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6a688d07faaa4e848f59ec49fdb663bc)](https://app.codacy.com/gh/johnsonjh/gonuma?utm_source=github.com&utm_medium=referral&utm_content=johnsonjh/gonuma&utm_campaign=Badge_Grade)
 
 `gonuma` is a Go utility library for writing NUMA-aware applications
 
