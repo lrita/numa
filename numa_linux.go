@@ -1,6 +1,6 @@
 // +build linux
 
-package numa
+package gonuma
 
 import (
 	"fmt"
@@ -17,12 +17,12 @@ import (
 func init() {
 	_, _, e1 := syscall.Syscall6(syscall.SYS_GET_MEMPOLICY, 0, 0, 0, 0, 0, 0)
 	available = e1 != syscall.ENOSYS
-	nnodemax = setupnodemask() // max nodes
+	NUMAnodemax = setupnodemask() // max nodes
 	memnodes = NewBitmask(NodePossibleCount())
 	numanodes = NewBitmask(NodePossibleCount())
-	nconfigurednode = setupconfigurednodes() // configured nodes
-	ncpumax = setupncpu()                    // max cpu
-	nconfiguredcpu = setupnconfiguredcpu()   // configured cpu
+	NUMAconfigurednode = setupconfigurednodes() // configured nodes
+	NUMAcpuMax = setupncpu()                    // max cpu
+	NUMAconfiguredcpu = setupnconfiguredcpu()   // configured cpu
 	setupconstraints()
 }
 
@@ -335,7 +335,7 @@ func setupconstraints() {
 }
 
 // NodeMemSize64 return the memory total size and free size of given node.
-func NodeMemSize64(node int) (total int64, free int64, err error) {
+func NodeMemSize64(node int) (total, free int64, err error) {
 	var (
 		d     []byte
 		fname = fmt.Sprintf("/sys/devices/system/node/node%d/meminfo", node)
@@ -372,7 +372,7 @@ func NodeMemSize64(node int) (total int64, free int64, err error) {
 	return
 }
 
-var fastway = cpuid.HasFeature(cpuid.RDTSCP)
+var NUMAfastway = cpuid.HasFeature(cpuid.RDTSCP)
 
 func getcpu()
 
@@ -380,10 +380,10 @@ func getcpu()
 //
 // equal:
 //
-// if fastway {
+// if NUMAfastway {
 // 	call RDTSCP
 //  The linux kernel will fill the node cpu id in the private data of each cpu.
 //  arch/x86/kernel/vsyscall_64.c@vsyscall_set_cpu
 // }
 // call vdsoGetCPU
-func GetCPUAndNode() (cpu int, node int)
+func GetCPUAndNode() (cpu, node int)

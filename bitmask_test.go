@@ -1,16 +1,17 @@
-package numa
+package gonuma_test
 
 import (
 	"strings"
 	"testing"
 
+	"github.com/johnsonjh/gonuma"
 	"github.com/stretchr/testify/require"
 )
 
 func TestBitmask(t *testing.T) {
 	assert := require.New(t)
 	for i := 0; i < 256; i++ {
-		mask := NewBitmask(i)
+		mask := gonuma.NewBitmask(i)
 
 		assert.True(mask.Len()%8 == 0)
 		assert.True(len(mask)*64 >= i)

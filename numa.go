@@ -1,4 +1,4 @@
-package numa
+package gonuma
 
 import (
 	"fmt"
@@ -8,18 +8,18 @@ var (
 	available bool
 	// The max possible node count, which represents the node count of local
 	// platform supporting.
-	// nnodemax =@nodemask_sz+1
-	nnodemax int
+	// NUMAnodemax =@nodemask_sz+1
+	NUMAnodemax int
 	// The max configured(enabled/setuped) node, which represents the
 	// available node count of local platform.
-	// nconfigurednode =@maxconfigurednode+1
-	nconfigurednode int
+	// NUMAconfigurednode =@maxconfigurednode+1
+	NUMAconfigurednode int
 	// The max possible cpu count, which represents the cpu count of local
 	// platform supporting.
-	// ncpumax =@cpumask_sz+1
-	ncpumax int
-	// nconfiguredcpu =@maxconfiguredcpu
-	nconfiguredcpu int
+	// NUMAcpuMax =@cpumask_sz+1
+	NUMAcpuMax int
+	// NUMAconfiguredcpu =@maxconfiguredcpu
+	NUMAconfiguredcpu int
 
 	memnodes  Bitmask
 	numanodes Bitmask
@@ -81,22 +81,22 @@ const (
 	MPOL_MF_VALID = MPOL_MF_STRICT | MPOL_MF_MOVE | MPOL_MF_MOVE_ALL
 )
 
-// Available returns current platform is whether support NUMA.
+// NUMAavailable returns current platform is whether support NUMA.
 // @ int numa_available(void)
-func Available() bool {
+func NUMAavailable() bool {
 	return available
 }
 
 // MaxNodeID returns the max id of current configured NUMA nodes.
 // @numa_max_node_int
 func MaxNodeID() int {
-	return nconfigurednode - 1
+	return NUMAconfigurednode - 1
 }
 
 // MaxPossibleNodeID returns the max possible node id of this platform supported.
 // The possible node id always larger than max node id.
 func MaxPossibleNodeID() int {
-	return nnodemax - 1
+	return NUMAnodemax - 1
 }
 
 // NodeCount returns the count of current configured NUMA nodes.
@@ -120,18 +120,18 @@ func NodeMask() Bitmask {
 // NodePossibleCount returns the possible NUMA nodes count of current platform
 // supported.
 func NodePossibleCount() int {
-	return nnodemax
+	return NUMAnodemax
 }
 
 // CPUPossibleCount returns the possible cpu count of current platform supported.
 func CPUPossibleCount() int {
-	return ncpumax
+	return NUMAcpuMax
 }
 
 // CPUCount returns the current configured(enabled/detected) cpu count, which
 // is different with runtime.NumCPU().
 func CPUCount() int {
-	return nconfiguredcpu
+	return NUMAconfiguredcpu
 }
 
 // RunningNodesMask return the bitmask of current process using NUMA nodes.

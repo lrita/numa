@@ -1,4 +1,4 @@
-package numa
+package gonuma
 
 import (
 	"io/ioutil"
@@ -41,9 +41,9 @@ const (
 
 	// Maximum indices for the array types used when traversing the vDSO ELF structures.
 	// Computed from architecture-specific max provided by vdso_linux_*.go
-	vdsoSymTabSize     = vdsoArrayMax / unsafe.Sizeof(elfSym{})
+	VdsoSymTabSize     = vdsoArrayMax / unsafe.Sizeof(elfSym{})
 	vdsoDynSize        = vdsoArrayMax / unsafe.Sizeof(elfDyn{})
-	vdsoSymStringsSize = vdsoArrayMax     // byte
+	VdsoSymStringsSize = vdsoArrayMax     // byte
 	vdsoVerSymSize     = vdsoArrayMax / 2 // uint16
 	vdsoHashSize       = vdsoArrayMax / 4 // uint32
 
@@ -137,8 +137,8 @@ type vdsoInfo struct {
 	loadOffset unsafe.Pointer /* loadAddr - recorded vaddr */
 
 	/* Symbol table */
-	symtab     *[vdsoSymTabSize]elfSym
-	symstrings *[vdsoSymStringsSize]byte
+	symtab     *[VdsoSymTabSize]elfSym
+	symstrings *[VdsoSymStringsSize]byte
 	chain      []uint32
 	bucket     []uint32
 	symOff     uint32
@@ -210,9 +210,9 @@ func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 		p := unsafe.Pointer(uintptr(info.loadOffset) + uintptr(dt.d_val))
 		switch dt.d_tag {
 		case _DT_STRTAB:
-			info.symstrings = (*[vdsoSymStringsSize]byte)(unsafe.Pointer(p))
+			info.symstrings = (*[VdsoSymStringsSize]byte)(unsafe.Pointer(p))
 		case _DT_SYMTAB:
-			info.symtab = (*[vdsoSymTabSize]elfSym)(unsafe.Pointer(p))
+			info.symtab = (*[VdsoSymTabSize]elfSym)(unsafe.Pointer(p))
 		case _DT_HASH:
 			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
 		case _DT_GNU_HASH:
@@ -301,7 +301,7 @@ func vdsoParseSymbols(name string, info *vdsoInfo, version int32) uintptr {
 
 	if !info.isGNUHash {
 		// Old-style DT_HASH table.
-		hash := elfHash(name)
+		hash := ELFHash(name)
 		for chain := info.bucket[hash%uint32(len(info.bucket))]; chain != 0; chain = info.chain[chain] {
 			if p := load(chain, name); p != 0 {
 				return p
@@ -311,7 +311,7 @@ func vdsoParseSymbols(name string, info *vdsoInfo, version int32) uintptr {
 	}
 
 	// New-style DT_GNU_HASH table.
-	gnuhash := elfGNUHash(name)
+	gnuhash := ELFGNUHash(name)
 	symIndex := info.bucket[gnuhash%uint32(len(info.bucket))]
 	if symIndex < info.symOff {
 		return 0
@@ -332,7 +332,7 @@ func vdsoParseSymbols(name string, info *vdsoInfo, version int32) uintptr {
 	return 0
 }
 
-func elfHash(name string) (h uint32) {
+func ELFHash(name string) (h uint32) {
 	for i := 0; i < len(name); i++ {
 		h = h<<4 + uint32(name[i])
 		g := h & 0xf0000000
@@ -344,7 +344,7 @@ func elfHash(name string) (h uint32) {
 	return
 }
 
-func elfGNUHash(name string) (h uint32) {
+func ELFGNUHash(name string) (h uint32) {
 	h = 5381
 	for i := 0; i < len(name); i++ {
 		h = h*33 + uint32(name[i])
@@ -370,12 +370,12 @@ func init() {
 	initVDSOAll()
 }
 
-func vdsoSym(name string) uintptr {
+func VdsoSym(name string) uintptr {
 	return vdsoParseSymbols(name, &vdsoinfo, vdsoVersion)
 }
 
 func initVDSODefault(name string, def uintptr) uintptr {
-	if p := vdsoSym(name); p != 0 {
+	if p := VdsoSym(name); p != 0 {
 		def = p
 	}
 	return def

@@ -1,4 +1,4 @@
-package numa
+package gonuma
 
 import (
 	"fmt"

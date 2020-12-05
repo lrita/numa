@@ -1,4 +1,4 @@
-package numa
+package gonuma_test
 
 import (
 	"runtime"
@@ -7,33 +7,33 @@ import (
 	"testing"
 	"unsafe"
 
+	gonuma "github.com/johnsonjh/gonuma"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNotAvailable(t *testing.T) {
-	if Available() {
-		t.Skip("TestNotAvailable")
+func TestNotNUMAavailable(t *testing.T) {
+	if gonuma.NUMAavailable() {
+		t.Skip("TestNotNUMAavailable")
 	}
 	assert := require.New(t)
-	_, err := GetMemPolicy(nil, nil, 0)
+	_, err := gonuma.GetMemPolicy(nil, nil, 0)
 	assert.Equal(syscall.ENOSYS, err)
-	assert.Equal(syscall.ENOSYS, SetMemPolicy(MPOL_DEFAULT, nil))
+	assert.Equal(syscall.ENOSYS, gonuma.SetMemPolicy(gonuma.MPOL_DEFAULT, nil))
+	assert.Equal(syscall.ENOSYS, gonuma.Bind(nil))
+	assert.Equal(syscall.ENOSYS, gonuma.MBind(nil, 0, 0, 0, nil))
 
-	assert.Equal(syscall.ENOSYS, Bind(nil))
-	assert.Equal(syscall.ENOSYS, MBind(nil, 0, 0, 0, nil))
-
-	_, err = GetSchedAffinity(0, nil)
+	_, err = gonuma.GetSchedAffinity(0, nil)
 	assert.Equal(syscall.ENOSYS, err)
-	assert.Equal(syscall.ENOSYS, SetSchedAffinity(0, nil))
+	assert.Equal(syscall.ENOSYS, gonuma.SetSchedAffinity(0, nil))
 
-	assert.Equal(syscall.ENOSYS, RunOnNode(-1))
-	assert.Equal(syscall.ENOSYS, RunOnNode(0))
-	assert.Error(RunOnNode(NodePossibleCount() + 1))
-	assert.Error(RunOnNode(-2))
+	assert.Equal(syscall.ENOSYS, gonuma.RunOnNode(-1))
+	assert.Equal(syscall.ENOSYS, gonuma.RunOnNode(0))
+	assert.Error(gonuma.RunOnNode(gonuma.NodePossibleCount() + 1))
+	assert.Error(gonuma.RunOnNode(-2))
 
-	for i := 0; i < CPUCount()+10; i++ {
-		node, err := CPUToNode(i)
-		if i < CPUCount() {
+	for i := 0; i < gonuma.CPUCount()+10; i++ {
+		node, err := gonuma.CPUToNode(i)
+		if i < gonuma.CPUCount() {
 			assert.NoError(err)
 			assert.Equal(0, node)
 		} else {
@@ -41,28 +41,28 @@ func TestNotAvailable(t *testing.T) {
 		}
 	}
 
-	_, err = NodeToCPUMask(NodePossibleCount() + 1)
+	_, err = gonuma.NodeToCPUMask(gonuma.NodePossibleCount() + 1)
 	assert.Error(err)
-	_, err = NodeToCPUMask(NodePossibleCount() + 1)
-	assert.Error(err)
-
-	_, err = RunningNodesMask()
+	_, err = gonuma.NodeToCPUMask(gonuma.NodePossibleCount() + 1)
 	assert.Error(err)
 
-	_, err = RunningCPUMask()
+	_, err = gonuma.RunningNodesMask()
 	assert.Error(err)
 
-	assert.Equal(syscall.ENOSYS, RunOnNodeMask(NodeMask()))
+	_, err = gonuma.RunningCPUMask()
+	assert.Error(err)
+
+	assert.Equal(syscall.ENOSYS, gonuma.RunOnNodeMask(gonuma.NodeMask()))
 }
 
 func TestNodeMemSize64(t *testing.T) {
 	var (
 		assert   = require.New(t)
-		nodemask = NodeMask()
+		nodemask = gonuma.NodeMask()
 	)
-	if !Available() {
+	if !gonuma.NUMAavailable() {
 		for i := 0; i < nodemask.Len(); i++ {
-			_, _, err := NodeMemSize64(i)
+			_, _, err := gonuma.NodeMemSize64(i)
 			assert.Equal(syscall.ENOSYS, err)
 		}
 	} else {
@@ -70,7 +70,7 @@ func TestNodeMemSize64(t *testing.T) {
 			if !nodemask.Get(i) {
 				continue
 			}
-			total, freed, err := NodeMemSize64(i)
+			total, freed, err := gonuma.NodeMemSize64(i)
 			assert.NoError(err)
 			assert.True(total > 0)
 			assert.True(freed >= 0)
@@ -80,63 +80,63 @@ func TestNodeMemSize64(t *testing.T) {
 
 func TestNUMAAPI(t *testing.T) {
 	assert := require.New(t)
-	assert.True(MaxNodeID() >= 0, "MaxNodeID() >= 0")
-	assert.True(MaxPossibleNodeID() >= 0, "MaxPossibleNodeID() >= 0")
-	assert.True(MaxPossibleNodeID() >= MaxNodeID())
-	assert.True(NodeCount() > 0, "NodeCount() > 0")
-	assert.True(NodePossibleCount() > 0, "NodePossibleCount() > 0")
-	assert.True(NodePossibleCount() >= NodeCount())
-	assert.True(CPUCount() > 0)
+	assert.True(gonuma.MaxNodeID() >= 0, "gonuma.MaxNodeID() >= 0")
+	assert.True(gonuma.MaxPossibleNodeID() >= 0, "gonuma.MaxPossibleNodeID() >= 0")
+	assert.True(gonuma.MaxPossibleNodeID() >= gonuma.MaxNodeID())
+	assert.True(gonuma.NodeCount() > 0, "NodeCount() > 0")
+	assert.True(gonuma.NodePossibleCount() > 0, "NodePossibleCount() > 0")
+	assert.True(gonuma.NodePossibleCount() >= gonuma.NodeCount())
+	assert.True(gonuma.CPUCount() > 0)
 }
 
 func TestMemPolicy(t *testing.T) {
-	if !Available() {
+	if !gonuma.NUMAavailable() {
 		t.Skip()
 	}
 	assert := require.New(t)
 
-	t.Log("nnodemask = ", nnodemax)
-	t.Log("nconfigurednode =", nconfigurednode)
-	t.Log("ncpumask =", ncpumax)
-	t.Log("nconfiguredcpu =", nconfiguredcpu)
+	t.Log("nnodemask = ", gonuma.NUMAnodemax)
+	t.Log("NUMAconfigurednode =", gonuma.NUMAconfigurednode)
+	t.Log("ncpumask =", gonuma.NUMAcpuMax)
+	t.Log("nconfiguredcpu =", gonuma.NUMAconfiguredcpu)
 
-	mode, err := GetMemPolicy(nil, nil, 0)
+	mode, err := gonuma.GetMemPolicy(nil, nil, 0)
 	assert.NoError(err)
-	assert.True(mode >= 0 && mode < MPOL_MAX, "%#v", mode)
-	assert.NoError(SetMemPolicy(MPOL_DEFAULT, nil))
+	assert.True(mode >= 0 && mode < gonuma.MPOL_MAX, "%#v", mode)
+	assert.NoError(gonuma.SetMemPolicy(gonuma.MPOL_DEFAULT, nil))
 }
 
 func TestGetMemAllowedNodeMaskAndBind(t *testing.T) {
 	assert := require.New(t)
-	mask, err := GetMemAllowedNodeMask()
-	if Available() {
+	mask, err := gonuma.GetMemAllowedNodeMask()
+	if gonuma.NUMAavailable() {
 		assert.NoError(err)
 		assert.True(mask.OnesCount() > 0)
-		assert.NoError(Bind(mask))
+		assert.NoError(gonuma.Bind(mask))
 	} else {
 		assert.Equal(syscall.ENOSYS, err)
 	}
 }
 
 func TestRunOnNodeAndRunningNodesMask(t *testing.T) {
-	if !Available() {
+	if !gonuma.NUMAavailable() {
 		t.Skip()
 	}
 	assert := require.New(t)
-	mask, err := RunningNodesMask()
+	mask, err := gonuma.RunningNodesMask()
 	assert.NoError(err)
 	assert.True(mask.OnesCount() > 0)
 	for i := 0; i < mask.Len(); i++ {
 		if !mask.Get(i) {
 			continue
 		}
-		assert.NoError(RunOnNode(i), "run on node %d", i)
+		assert.NoError(gonuma.RunOnNode(i), "run on node %d", i)
 
-		cpumask, err := NodeToCPUMask(i)
+		cpumask, err := gonuma.NodeToCPUMask(i)
 		assert.NoError(err)
 		assert.True(cpumask.OnesCount() > 0)
 
-		gotmask, err := RunningCPUMask()
+		gotmask, err := gonuma.RunningCPUMask()
 		assert.NoError(err)
 		assert.Equal(cpumask, gotmask)
 
@@ -144,50 +144,50 @@ func TestRunOnNodeAndRunningNodesMask(t *testing.T) {
 			if !cpumask.Get(j) {
 				continue
 			}
-			node, err := CPUToNode(j)
+			node, err := gonuma.CPUToNode(j)
 			assert.NoError(err)
 			assert.Equal(i, node)
 		}
 	}
 
-	assert.NoError(RunOnNode(-1))
-	assert.Error(RunOnNode(-2))
-	assert.Error(RunOnNode(1 << 20))
+	assert.NoError(gonuma.RunOnNode(-1))
+	assert.Error(gonuma.RunOnNode(-2))
+	assert.Error(gonuma.RunOnNode(1 << 20))
 
-	_, err = CPUToNode(CPUPossibleCount())
+	_, err = gonuma.CPUToNode(gonuma.CPUPossibleCount())
 	assert.Error(err)
 }
 
 func TestMBind(t *testing.T) {
-	if !Available() {
+	if !gonuma.NUMAavailable() {
 		t.Skip()
 	}
 	assert := require.New(t)
 
 	assert.Equal(syscall.EINVAL,
-		MBind(unsafe.Pointer(t), 100, MPOL_DEFAULT, 0, nil))
+		gonuma.MBind(unsafe.Pointer(t), 100, gonuma.MPOL_DEFAULT, 0, nil))
 }
 
 func TestGetNodeAndCPU(t *testing.T) {
-	if !Available() {
+	if !gonuma.NUMAavailable() {
 		t.Skip("not available")
 	}
 	var (
-		nodem  = NewBitmask(NodePossibleCount())
+		nodem  = gonuma.NewBitmask(gonuma.NodePossibleCount())
 		mu     sync.Mutex
 		wg     sync.WaitGroup
 		assert = require.New(t)
 	)
-	cpum := make([]Bitmask, NodePossibleCount())
+	cpum := make([]gonuma.Bitmask, gonuma.NodePossibleCount())
 	for i := 0; i < len(cpum); i++ {
-		cpum[i] = NewBitmask(CPUPossibleCount())
+		cpum[i] = gonuma.NewBitmask(gonuma.CPUPossibleCount())
 	}
-	for i := 0; i < CPUCount(); i++ {
+	for i := 0; i < gonuma.CPUCount(); i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for i := 0; i < 100; i++ {
-				cpu, node := GetCPUAndNode()
+				cpu, node := gonuma.GetCPUAndNode()
 				mu.Lock()
 				cpum[node].Set(cpu, true)
 				nodem.Set(node, true)
@@ -198,23 +198,23 @@ func TestGetNodeAndCPU(t *testing.T) {
 	}
 	wg.Wait()
 
-	for i := 0; i < 2*CPUCount(); i++ {
+	for i := 0; i < (gonuma.CPUCount() * 2); i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			cpu, node := GetCPUAndNode()
+			cpu, node := gonuma.GetCPUAndNode()
 			t.Logf("TestGetNodeAndCPU cpu %v node %v", cpu, node)
 		}()
 	}
 	wg.Wait()
 
-	nmask := NodeMask()
+	nmask := gonuma.NodeMask()
 	for i := 0; i < nodem.Len(); i++ {
 		if !nodem.Get(i) {
 			continue
 		}
 		assert.True(nmask.Get(i), "node %d", i)
-		cpumask, err := NodeToCPUMask(i)
+		cpumask, err := gonuma.NodeToCPUMask(i)
 		assert.NoError(err)
 		cmask := cpum[i]
 		for j := 0; j < cmask.Len(); j++ {
@@ -229,7 +229,7 @@ func TestGetNodeAndCPU(t *testing.T) {
 func BenchmarkGetCPUAndNode(b *testing.B) {
 	b.RunParallel(func(bp *testing.PB) {
 		for bp.Next() {
-			GetCPUAndNode()
+			gonuma.GetCPUAndNode()
 		}
 	})
 }

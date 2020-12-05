@@ -1,6 +1,6 @@
 // +build !linux
 
-package numa
+package gonuma
 
 import (
 	"runtime"
@@ -10,23 +10,23 @@ import (
 
 func init() {
 	// only used for cross-compile
-	nnodemax = 1
+	NUMAnodemax = 1
 	memnodes = NewBitmask(NodePossibleCount())
 	numanodes = NewBitmask(NodePossibleCount())
-	nconfigurednode = setupconfigurednodes()
+	NUMAconfigurednode = setupconfigurednodes()
 
 	memnodes.Set(0, true)
 	numanodes.Set(0, true)
 
-	ncpumax = runtime.NumCPU()
-	nconfiguredcpu = runtime.NumCPU()
+	NUMAcpuMax = runtime.NumCPU()
+	NUMAconfiguredcpu = runtime.NumCPU()
 
-	cpu2node = make(map[int]int, ncpumax)
-	for i := 0; i < ncpumax; i++ {
+	cpu2node = make(map[int]int, NUMAcpuMax)
+	for i := 0; i < NUMAcpuMax; i++ {
 		cpu2node[i] = 0
 	}
-	cpumask := NewBitmask(nconfiguredcpu)
-	for i := 0; i < nconfiguredcpu; i++ {
+	cpumask := NewBitmask(NUMAconfiguredcpu)
+	for i := 0; i < NUMAconfiguredcpu; i++ {
 		cpumask.Set(i, true)
 	}
 	node2cpu = map[int]Bitmask{0: cpumask}
@@ -54,7 +54,7 @@ func SetMemPolicy(mode int, nodemask Bitmask) error {
 }
 
 // NodeMemSize64 return the memory total size and free size of given node.
-func NodeMemSize64(node int) (total int64, free int64, err error) {
+func NodeMemSize64(node int) (total, free int64, err error) {
 	return 0, 0, syscall.ENOSYS
 }
 
@@ -81,10 +81,10 @@ func SetSchedAffinity(pid int, cpumask Bitmask) error {
 }
 
 // GetCPUAndNode returns the node id and cpu id which current caller running on.
-func GetCPUAndNode() (cpu int, node int) {
+func GetCPUAndNode() (cpu, node int) {
 	cpu = runtime_procPin()
 	runtime_procUnpin()
-	return cpu % ncpumax, nnodemax - 1
+	return cpu % NUMAcpuMax, NUMAnodemax - 1
 }
 
 // Implemented in runtime.

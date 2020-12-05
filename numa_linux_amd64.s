@@ -30,8 +30,8 @@ TEXT ·getcpu(SB), NOSPLIT|NEEDCTXT, $0-0 // this function is running g0 stack, 
 	RET
 
 TEXT ·GetCPUAndNode(SB),NOSPLIT,$32-16
-	// check support fastway
-	CMPB	·fastway(SB), $0
+	// check support for Fastway
+	CMPB	·NUMAfastway(SB), $0
 	JE	no_fastway
 	// RDTSCP go1.11 support RDTSCP opcode but go1.10 not
 	BYTE	$0x0F; BYTE $0x01; BYTE $0xF9

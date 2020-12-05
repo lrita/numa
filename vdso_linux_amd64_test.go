@@ -1,9 +1,13 @@
-package numa
+package gonuma_test
 
-import "testing"
+import (
+	"testing"
+
+	gonuma "github.com/johnsonjh/gonuma"
+)
 
 func TestELFHash(t *testing.T) {
-	var tt = []struct {
+	tt := []struct {
 		s string
 		h uint32
 		g uint32
@@ -13,11 +17,11 @@ func TestELFHash(t *testing.T) {
 		{s: "__vdso_getcpu", h: 0xb01045, g: 0x6562b026},
 	}
 	for _, v := range tt {
-		h := elfHash(v.s)
+		h := gonuma.ELFHash(v.s)
 		if h != v.h {
 			t.Errorf("%s got 0x%x", v.s, h)
 		}
-		g := elfGNUHash(v.s)
+		g := gonuma.ELFGNUHash(v.s)
 		if g != v.g {
 			t.Errorf("%s got 0x%x", v.s, g)
 		}
@@ -25,7 +29,7 @@ func TestELFHash(t *testing.T) {
 }
 
 func TestVdsoSym(t *testing.T) {
-	var tt = []struct {
+	tt := []struct {
 		s string
 		v bool
 	}{
@@ -37,9 +41,9 @@ func TestVdsoSym(t *testing.T) {
 	}
 
 	for _, v := range tt {
-		p := vdsoSym(v.s)
+		p := gonuma.VdsoSym(v.s)
 		if x := p != 0; x != v.v {
-			t.Errorf("vdsoSym %v got 0x%x", v.s, p)
+			t.Errorf("VdsoSym %v got 0x%x", v.s, p)
 		}
 	}
 }

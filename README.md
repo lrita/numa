@@ -1,27 +1,34 @@
-# NUMA
+# gonuma
 
-[![Build Status](https://travis-ci.org/lrita/numa.svg?branch=master)](https://travis-ci.org/lrita/numa) [![GoDoc](https://godoc.org/github.com/lrita/numa?status.png)](https://godoc.org/github.com/lrita/numa) [![codecov](https://codecov.io/gh/lrita/numa/branch/master/graph/badge.svg)](https://codecov.io/gh/lrita/numa) [![Go Report Card](https://goreportcard.com/badge/github.com/lrita/numa)](https://goreportcard.com/report/github.com/lrita/numa)
+[![GoReportCard](https://goreportcard.com/badge/github.com/johnsonjh/gonuma)](https://goreportcard.com/report/github.com/johnsonjh/gonuma)
 
-NUMA is a utility library, which is written in go. It help us to write
-some NUMA-AWARED code.
+`gonuma` is a Go utility library for writing NUMA-aware applications
 
-example gist:
+
+## Original Author
+
+* [lrita@163.com](https://github.com/lrita/numa)
+
+
+## Usage
+
 ```go
-package main
+	package main
 
-import (
-	"github.com/lrita/numa"
-)
+	import (
+		gonuma "github.com/johnsonjh/gonuma"
+	)
 
-type object struct {
-	X int
-	_ [...]byte // padding to page size.
- }
+	type object struct {
+		X int
+		_ [...]byte // padding to page size.
+	 }
 
-var objects = make([]object, numa.CPUCount())
+	var objects = make([]object, gonuma.CPUCount())
 
-func fnxxxx() {
-	cpu, node := numa.GetCPUAndNode()
-	objects[cpu].X = xx
-}
+	func fnxxxx() {
+		cpu, node := gonuma.GetCPUAndNode()
+		objects[cpu].X = xx
+	}
 ```
+
