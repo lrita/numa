@@ -1,5 +1,6 @@
 # gonuma
 
+[![License](http://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/johnsonjh/gonuma/master/LICENSE)
 [![GoReportCard](https://goreportcard.com/badge/github.com/johnsonjh/gonuma)](https://goreportcard.com/report/github.com/johnsonjh/gonuma)
 
 `gonuma` is a Go utility library for writing NUMA-aware applications
