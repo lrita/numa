@@ -6,18 +6,23 @@ import (
 
 var (
 	available bool
-	// The max possible node count, which represents the node count of local
-	// platform supporting.
+
+	// NUMAnodemax is the maximum possible node count. It represents
+	// the absolute highest node count supported on the local platform.
 	// NUMAnodemax =@nodemask_sz+1
 	NUMAnodemax int
-	// The max configured(enabled/setuped) node, which represents the
-	// available node count of local platform.
+
+	// NUMAconfigurednode represents the maximum possible number of
+	// configured or enabled nodes supported on the local platform.
 	// NUMAconfigurednode =@maxconfigurednode+1
 	NUMAconfigurednode int
-	// The max possible cpu count, which represents the cpu count of local
-	// platform supporting.
+
+	// NUMAcpuMax is the maximum possible CPU count, which represents
+	// the absolute highest CPU count supported on the local platform.
 	// NUMAcpuMax =@cpumask_sz+1
 	NUMAcpuMax int
+
+	// NUMAconfiguredcpu is the number of currently configured CPUs.
 	// NUMAconfiguredcpu =@maxconfiguredcpu
 	NUMAconfiguredcpu int
 
