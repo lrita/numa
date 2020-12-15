@@ -11,7 +11,7 @@
 [![CodeBeat](https://codebeat.co/badges/041414ca-af27-40f2-a5d6-13afc4ce9c6b)](https://codebeat.co/projects/github-com-johnsonjh-gonuma-master)
 [![CodeclimateMaintainability](https://api.codeclimate.com/v1/badges/61db603e26c07e0e9ee4/maintainability)](https://codeclimate.com/github/johnsonjh/gonuma/maintainability)
 [![TickgitTODOs](https://img.shields.io/endpoint?url=https://api.tickgit.com/badge?repo=github.com/johnsonjh/gonuma)](https://www.tickgit.com/browse?repo=github.com/johnsonjh/gonuma)
-[![DeepSource](https://deepsource.io/gh/johnsonjh/gonuma.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/johnsonjh/gonuma/?ref=repository-badge)
+[![DeepSource](https://deepsource.io/gh/johnsonjh/gonuma.svg/?label=active+issues)](https://deepsource.io/gh/johnsonjh/gonuma/?ref=repository-badge)
 
 `gonuma` is a Go utility library for writing NUMA-aware applications
 
