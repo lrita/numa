@@ -6,33 +6,52 @@ import (
 )
 
 const (
-	AtNull        = 0 // End of vector
+	// AtNull ...
+	AtNull = 0 // End of vector
+	// AtSysInfoEHdr ...
 	AtSysInfoEHdr = 33
 
-	PtLoad    = 1 /* Loadable program segment */
+	// PtLoad ...
+	PtLoad = 1 /* Loadable program segment */
+	// PtDynamic ...
 	PtDynamic = 2 /* Dynamic linking information */
 
-	DtNull    = 0          /* Marks end of dynamic section */
-	DtHash    = 4          /* Dynamic symbol hash table */
-	DtStrTab  = 5          /* Address of string table */
-	DtSymTab  = 6          /* Address of symbol table */
+	// DtNull ...
+	DtNull = 0 /* Marks end of dynamic section */
+	// DtHash ...
+	DtHash = 4 /* Dynamic symbol hash table */
+	// DtStrTab ...
+	DtStrTab = 5 /* Address of string table */
+	// DtSymTab ...
+	DtSymTab = 6 /* Address of symbol table */
+	// DtGNUHash ...
 	DtGNUHash = 0x6ffffef5 /* GNU-style dynamic symbol hash table */
-	DtVerSym  = 0x6ffffff0
-	DtVerDef  = 0x6ffffffc
+	// DtVerSym ...
+	DtVerSym = 0x6ffffff0
+	// DtVerDef ...
+	DtVerDef = 0x6ffffffc
 
+	// VerFlagBase ...
 	VerFlagBase = 0x1 /* Version definition of file itself */
 
+	// ShnUndef ...
 	ShnUndef = 0 /* Undefined section */
 
+	// ShtDynSym ...
 	ShtDynSym = 11 /* Dynamic linker symbol table */
 
+	// SttFunc ...
 	SttFunc = 2 /* Symbol is a code object */
 
+	// SttNoType ...
 	SttNoType = 0 /* Symbol type is not specified */
 
+	// StbGlobal ...
 	StbGlobal = 1 /* Global symbol */
-	StbWeak   = 2 /* Weak symbol */
+	// StbWeak ...
+	StbWeak = 2 /* Weak symbol */
 
+	// EINIdent ...
 	EINIdent = 16
 
 	// vdsoArrayMax is the byte-size of a maximally sized array on this
@@ -44,8 +63,11 @@ const (
 	// Maximum indices for the array types used when traversing the vDSO ELF
 	// structures.
 	// Computed from architecture-specific max provided by vdso_linux_*.go
-	VdsoSymTabSize     = vdsoArrayMax / unsafe.Sizeof(elfSym{})
-	vdsoDynSize        = vdsoArrayMax / unsafe.Sizeof(elfDyn{})
+
+	// VdsoSymTabSize ...
+	VdsoSymTabSize = vdsoArrayMax / unsafe.Sizeof(elfSym{})
+	vdsoDynSize    = vdsoArrayMax / unsafe.Sizeof(elfDyn{})
+	// VdsoSymStringsSize ...
 	VdsoSymStringsSize = vdsoArrayMax     // byte
 	vdsoVerSymSize     = vdsoArrayMax / 2 // uint16
 	vdsoHashSize       = vdsoArrayMax / 4 // uint32
@@ -64,12 +86,12 @@ type vdsoVersionKey struct {
 // ELF64 structure definitions for use by the vDSO loader
 
 type elfSym struct {
-	stName   uint32
-	stInfo   byte
-	st_other byte
-	stShndx  uint16
-	stValue  uint64
-	st_size  uint64
+	stName  uint32
+	stInfo  byte
+	stOther byte
+	stShndx uint16
+	stValue uint64
+	stSize  uint64
 }
 
 type elfVerdef struct {
@@ -111,16 +133,16 @@ type elfPhdr struct {
 }
 
 type elfShdr struct {
-	sh_name      uint32 /* Section name (string tbl index) */
-	sh_type      uint32 /* Section type */
-	sh_flags     uint64 /* Section flags */
-	sh_addr      uint64 /* Section virtual addr at execution */
-	sh_offset    uint64 /* Section file offset */
-	sh_size      uint64 /* Section size in bytes */
-	sh_link      uint32 /* Link to another section */
-	sh_info      uint32 /* Additional section information */
-	sh_addralign uint64 /* Section alignment */
-	sh_entsize   uint64 /* Entry size if section holds table */
+	shName      uint32 /* Section name (string tbl index) */
+	shType      uint32 /* Section type */
+	shFlags     uint64 /* Section flags */
+	shAddr      uint64 /* Section virtual addr at execution */
+	shOffset    uint64 /* Section file offset */
+	shSize      uint64 /* Section size in bytes */
+	shLink      uint32 /* Link to another section */
+	shInfo      uint32 /* Additional section information */
+	shAddralign uint64 /* Section alignment */
+	shEntSize   uint64 /* Entry size if section holds table */
 }
 
 type elfDyn struct {
@@ -162,7 +184,11 @@ var (
 )
 
 /* How to extract and insert information held in the stInfo field.  */
+
+// ELFstBind ...
 func ELFstBind(val byte) byte { return val >> 4 }
+
+// ELFstType ...
 func ELFstType(val byte) byte { return val & 0xf }
 
 //go:nosplit
@@ -350,6 +376,7 @@ func vdsoParseSymbols(name string, info *vdsoInfo, version int32) uintptr {
 	return 0
 }
 
+// ELFHash ...
 func ELFHash(name string) (h uint32) {
 	for i := 0; i < len(name); i++ {
 		h = h<<4 + uint32(name[i])
@@ -362,6 +389,7 @@ func ELFHash(name string) (h uint32) {
 	return
 }
 
+// ELFGNUHash ...
 func ELFGNUHash(name string) (h uint32) {
 	h = 5381
 	for i := 0; i < len(name); i++ {
@@ -391,6 +419,7 @@ func init() {
 	initVDSOAll()
 }
 
+// VdsoSym ...
 func VdsoSym(name string) uintptr {
 	return vdsoParseSymbols(name, &vdsoinfo, vdsoVersion)
 }

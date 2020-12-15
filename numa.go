@@ -42,12 +42,11 @@ const (
 	MPolLocal
 	MPolMax
 
-	// MPolFStaticNodes since Linux 2.6.26
-	// A nonempty nodemask specifies physical node ids. Linux does will not
-	// remap the nodemask when the process moves to a different cpuset
-	// context,
-	// nor when the set of nodes allowed by the process's current cpuset
-	// context changes.
+	// MPolFStaticNodes since Linux 2.6.26 ....
+	// A nonempty nodemask specifies physical node ids. Linux does will
+	// not remap the nodemask when the process moves to a different cpuset
+	// context, nor when the set of nodes allowed by the process current
+	// cpuset context changes.
 	MPolFStaticNodes = 1 << 15
 
 	// MPolFRelativeNodes since Linux 2.6.26
@@ -61,19 +60,17 @@ const (
 )
 
 const (
-	// Flags for get_mem_policy
-	// return next IL node or node of address
 	// MPolFNode is unsupported and subject to change.
+	// Flags for get_mem_policy return next IL node or node of address
 	MPolFNode = 1 << iota
-	// MpolFAddr looks up vma using address
+	// MPolFAddr looks up vma using address
 	MPolFAddr
-	// MpolFMemsAllowed queries nodes allowed in cpuset
+	// MPolFMemsAllowed queries nodes allowed in cpuset
 	MPolFMemsAllowed
 )
 
 const (
-	// Flags for mbind
-	// MPolMFStrict verifies existing pages in the mapping
+	// MPolMFStrict verifies existing pages in the mapping Flags for mbind
 	MPolMFStrict = 1 << iota
 	// MPolMFMove moves pages owned by this process to conform to mapping
 	MPolMFMove
@@ -87,32 +84,29 @@ const (
 	MPolMFValid = MPolMFStrict | MPolMFMove | MPolMFMoveAll
 )
 
-// @ int numa_available(void)
 // NUMAavailable returns current platform is whether support NUMA.
 func NUMAavailable() bool {
 	return available
 }
 
-// @numa_max_node_int
 // MaxNodeID returns the max id of current configured NUMA nodes.
 func MaxNodeID() int {
 	return NUMAconfigurednode - 1
 }
 
-// The possible node id always larger than max node id.
 // MaxPossibleNodeID returns the max possible node id this platform supports
+// The possible node id always larger than max node id.
 func MaxPossibleNodeID() int {
 	return NUMAnodemax - 1
 }
 
+// NodeCount returns the count of current configured NUMA nodes.
 // NOTE: this function's behavior matches the documentation (ie: it
 // returns a count of nodes with memory) despite the poor function
 // naming.  We also cannot use the similarly poorly named
 // numa_all_nodes_ptr as it only tracks nodes with memory from which
 // the calling process can allocate.  Think sparse nodes, memory-less
-// nodes, cpusets...
-// NodeCount returns the count of current configured NUMA nodes.
-// @numa_num_configured_nodes
+// nodes, cpusets.
 func NodeCount() int {
 	return memnodes.OnesCount()
 }
@@ -123,8 +117,7 @@ func NodeMask() Bitmask {
 }
 
 // NodePossibleCount returns the possible NUMA nodes count of current
-// platform
-// supported.
+// platform supported.
 func NodePossibleCount() int {
 	return NUMAnodemax
 }
@@ -135,13 +128,11 @@ func CPUPossibleCount() int {
 }
 
 // CPUCount returns the current configured(enabled/detected) cpu count,
-// which
-// is different with runtime.NumCPU().
+// which is different with runtime.NumCPU().
 func CPUCount() int {
 	return NUMAconfiguredcpu
 }
 
-// @numa_get_run_node_mask_v2
 // RunningNodesMask return the bitmask of current process using NUMA nodes.
 func RunningNodesMask() (Bitmask, error) {
 	nodemask := NewBitmask(NodePossibleCount())
@@ -171,7 +162,6 @@ func RunningCPUMask() (Bitmask, error) {
 	return cpumask[:len(NewBitmask(CPUCount()))], nil
 }
 
-// @numa_node_to_cpus_v2
 // NodeToCPUMask returns the cpumask of given node id.
 func NodeToCPUMask(node int) (Bitmask, error) {
 	if node > MaxPossibleNodeID() {
@@ -193,9 +183,8 @@ func CPUToNode(cpu int) (int, error) {
 	return node, nil
 }
 
-// The special node -1 will set current process on all available nodes.
-// @numa_run_on_node
 // RunOnNode set current process run on given node.
+// The special node "-1" will set current process on all available nodes.
 func RunOnNode(node int) (err error) {
 	var cpumask Bitmask
 	switch {
@@ -208,15 +197,13 @@ func RunOnNode(node int) (err error) {
 			return err
 		}
 	default:
-		return fmt.Errorf("invalided node %d", node)
+		return fmt.Errorf("invalid node %d", node)
 	}
 	return SetSchedAffinity(0, cpumask)
 }
 
-// nodes.
-// @numa_get_mems_allowed
 // GetMemAllowedNodeMask returns the bitmask of current process allowed
-// running
+// running nodes.
 func GetMemAllowedNodeMask() (Bitmask, error) {
 	mask := NewBitmask(NodePossibleCount())
 	if _, err := GetMemPolicy(mask, nil, MPolFMemsAllowed); err != nil {
@@ -225,7 +212,6 @@ func GetMemAllowedNodeMask() (Bitmask, error) {
 	return mask, nil
 }
 
-// @numa_run_on_node_mask_v2
 // RunOnNodeMask run current process to the given nodes.
 func RunOnNodeMask(mask Bitmask) error {
 	cpumask := NewBitmask(CPUPossibleCount())
@@ -248,7 +234,6 @@ func RunOnNodeMask(mask Bitmask) error {
 	return SetSchedAffinity(0, cpumask)
 }
 
-// @numa_bind_v2
 // Bind bind current process on those nodes which given by a bitmask.
 func Bind(mask Bitmask) error {
 	if err := RunOnNodeMask(mask); err != nil {
