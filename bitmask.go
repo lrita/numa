@@ -65,9 +65,9 @@ func (b Bitmask) String() string {
 func (b Bitmask) Text() string {
 	var (
 		s   []string
-		len = b.Len() * 8
+		length = b.Len() * 8
 	)
-	for i := 0; i < len; i++ {
+	for i := 0; i < length; i++ {
 		if b.Get(i) {
 			s = append(s, strconv.Itoa(i))
 		}

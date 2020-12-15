@@ -224,12 +224,12 @@ func GetSchedAffinity(pid int, cpumask Bitmask) (int, error) {
 	if maxnode = uintptr(cpumask.Len() / 8); maxnode != 0 {
 		mask = uintptr(unsafe.Pointer(&cpumask[0]))
 	}
-	len, _, e1 := syscall.Syscall(syscall.SYS_SCHED_GETAFFINITY,
+	length, _, e1 := syscall.Syscall(syscall.SYS_SCHED_GETAFFINITY,
 		uintptr(pid), maxnode, mask)
 	if e1 != 0 {
 		return 0, e1
 	}
-	return int(len), nil
+	return int(length), nil
 }
 
 // SetSchedAffinity sets the CPU affinity mask of the process whose ID
