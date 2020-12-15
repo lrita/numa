@@ -93,16 +93,16 @@ func SetSchedAffinity(pid int, cpumask Bitmask) error {
 // GetCPUAndNode returns the node id and cpu id which current caller running
 // on.
 func GetCPUAndNode() (cpu, node int) {
-	cpu = runtime_procPin()
+	cpu = runtimeProcUnpin()
 	runtime_procUnpin()
 	return cpu % NUMAcpuMax, NUMAnodemax - 1
 }
 
 // Implemented in runtime.
 
-//go:linkname runtime_procPin runtime.procPin
+//go:linkname runtimeProcUnpin runtime.procPin
 //go:nosplit
-func runtime_procPin() int
+func runtimeProcUnpin() int
 
 //go:linkname runtime_procUnpin runtime.procUnpin
 //go:nosplit
