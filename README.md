@@ -24,6 +24,15 @@
 
 - [lrita@163.com](https://github.com/lrita/numa)
 
+## Security
+
+- [Security Policy](https://github.com/johnsonjh/gonuma/blob/master/SECURITY.md)
+
+## Coverage Reports
+
+- [GoCov](https://pktdist.gridfinity.com/coverage/gonuma/)
+- [Coveralls](https://coveralls.io/github/johnsonjh/gonuma)
+
 ## Usage
 
 ```go

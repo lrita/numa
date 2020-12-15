@@ -1,0 +1,140 @@
+###################### Begin Defaults
+stages:
+    - all
+variables:
+    GIT_DEPTH: 0
+    GIT_STRATEGY: clone
+default:
+    before_script:
+    - | 
+        # before_script
+        echo "Starting before_script actions."
+        echo "Finished before_script actions."
+    after_script:
+    - | 
+        # after_script
+        echo "Starting after_script actions."
+        echo "Finished after_script actions."
+###################### End Defaults
+
+###################### Begin Common Blocks
+.scriptCommon: &scriptCommon | 
+    # scriptCommon
+    echo "Project Name              : $CI_PROJECT_TITLE"
+    echo "Project Git Commit        : $CI_COMMIT_SHA"
+    echo "Project Git Branch        : $CI_COMMIT_BRANCH"
+    echo "GitLab CI User Details    : $GITLAB_USER_LOGIN - $GITLAB_USER_NAME ($GITLAB_USER_ID) $GITLAB_USER_EMAIL"
+    echo "GitLab CI Job Name        : $CI_JOB_NAME"
+    echo "GitLab CI Job ID          : $CI_JOB_ID"
+    echo "GitLab CI Job Stage       : $CI_JOB_STAGE"
+    echo "GitLab CI Runner Details  : $CI_RUNNER_VERSION ($CI_RUNNER_REVISION)"
+.scriptGoVersion: &scriptGoVersion | 
+    # scriptGoVersion
+    echo "Go Compiler Version:"
+    go version
+    echo "Go Default Environment:"
+    go env
+    echo "Go Current Environment:"
+    go tool dist env -p
+.scriptGitPre: &scriptGitPre | 
+    # scriptGitPre
+    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git --no-pager fetch --tags
+    git --no-pager fetch --all --recurse-submodules=yes
+    git --no-pager update-index -q --refresh --really-refresh
+    git --no-pager for-each-ref --count=1
+    git --no-pager reset --hard
+    git --no-pager diff --full-index --ignore-cr-at-eol --exit-code
+###################### End Common Blocks
+
+###################### Begin Windows Build + Test
+windows job:
+    tags:
+    - Windows
+    stage: all
+    script: 
+    - *scriptCommon
+    - $env:Path += ";C:\Program Files\Git\cmd;C:\Go\bin"
+    - $env:GO111MODULE="on"
+    - $env:GOPROXY="https://gocenter.io,https://proxy.golang.org,direct"
+    - $env:CGO_ENABLED="0"
+    - *scriptGoVersion
+    - go clean -modcache -cache -r
+    - go mod download
+    - go mod verify
+    - *scriptGitPre
+    - go build -v -a -tags="osnetgo,osusergo" -trimpath .\...
+    - | 
+        # status
+        echo "Build completed successfully - running tests; coverage and race detector enabled"
+        echo "TODO: Port of 'cov_report.sh' to PowerShell"
+    - $env:CGO_ENABLED="1"
+    - go test -v -cover -covermode="atomic" -race -tags="osnetgo,osusergo,leaktest,purego" -count="1" -cpu="1" -bench="." -parallel="1" .\...
+###################### End Windows Build + Test
+
+###################### Begin Linux
+linux job:
+    tags:
+    - Linux
+    stage: all
+    script: 
+    - *scriptCommon
+    - | 
+        # upgrade system, install development tools
+    - yum install dnf -y || true :;
+    - yum clean all -y || true :;
+    - dnf upgrade --refresh -y || true :;
+    - dnf groupinstall "Development Tools" -y || true :;
+    - dnf install epel-release centos-release-scl centos-release-scl-rh -y || true :;
+    - dnf install zsh rpmconf scl-utils devtoolset-9 -y || true :;
+    - yes | rpmconf -a || true :;
+    - . /opt/rh/devtoolset-9/enable
+    - dnf clean all -y || true :;
+    - | 
+        # gimme go 1.15.6
+        bash --norc --noprofile --posix -o pipefail -c "set -e && mkdir -p /tools/bin && curl -fsSL -o /tools/bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme && chmod a+x /tools/bin/gimme" || true :;
+        bash --norc --noprofile --posix -o pipefail -c "set -e && mkdir -p /tools/gimme && GIMME_SILENT_ENV=1 GIMME_ENV_PREFIX=/tools/gimme/env GIMME_VERSION_PREFIX=/tools/gimme/ver GIMME_GO_VERSION=1.15.6 GIMME_CGO_ENABLED=1 /tools/bin/gimme" > /tools/genv && . /tools/genv || true :;
+    - . /tools/genv
+    - gcc --version
+    - go env -w GO111MODULE=on
+    - go env -w GOPROXY="https://goproxy.io,https://proxy.golang.org,direct"
+    - *scriptGoVersion
+    - go clean -modcache -cache -r
+    - go mod download
+    - go mod verify
+    - *scriptGitPre
+    - CGO_ENABLED=0 go build -v -a -tags="osnetgo,osusergo" -trimpath $(go list ./... | grep -v test | sort | uniq)
+    - | 
+        # status
+        echo "Build completed successfully - running tests; coverage and race detector enabled"
+        echo "TODO: Use 'cov_report.sh'"
+    - CGO_ENABLED=1 go test -v -cover -covermode=atomic -race -tags="osnetgo,osusergo,leaktest,purego" -count=1 -cpu=1 -bench=. -parallel=1 $(go list ./... | grep -v test | sort | uniq)
+###################### End Linux Build + Test
+
+###################### Begin macOS Build + Test
+macos job:
+    tags:
+    - macOS
+    stage: all
+    script:
+    - | 
+        # update & upgrade homebrew
+        bash --norc --noprofile --posix -c "brew  update >/dev/null 2>&1 || true :;" >/dev/null 2>&1 || true :;
+        bash --norc --noprofile --posix -c "brew upgrade >/dev/null 2>&1 || true :;" >/dev/null 2>&1 || true :;
+    - *scriptCommon
+    - if type brew >/dev/null 2>&1; then export HOMEBREW_PREFIX=$(brew --prefix 2>/dev/null); for dir in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin; do export PATH="${dir}:${PATH}"; done; fi
+    - export PATH="/usr/local/opt/gcc/bin:${PATH}"
+    - go env -w GO111MODULE=on
+    - go env -w GOPROXY="https://goproxy.io,https://proxy.golang.org,direct"
+    - *scriptGoVersion
+    - go clean -modcache -cache -r
+    - go mod download
+    - go mod verify
+    - *scriptGitPre
+    - CGO_ENABLED=0 go build -v -a -tags="osnetgo,osusergo" -trimpath $(go list ./... | grep -v test | sort | uniq)
+    - | 
+        # status
+        echo "Build completed successfully - running tests; coverage and race detector enabled"
+        echo "TODO: Use 'cov_report.sh'"
+    - CGO_ENABLED=1 go test -v -cover -covermode=atomic -race -tags="osnetgo,osusergo,leaktest,purego" -count=1 -cpu=1 -bench=. -parallel=1 $(go list ./... | grep -v test | sort | uniq)
+###################### End macOS Build + Test
