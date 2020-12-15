@@ -16,12 +16,12 @@
 
 ## Availability
 
-* [Gridfinity GitLab](https://gitlab.gridfinity.com/jeff/go-numa)
-* [GitHub](https://github.com/johnsonjh/gonuma)
+- [Gridfinity GitLab](https://gitlab.gridfinity.com/jeff/go-numa)
+- [GitHub](https://github.com/johnsonjh/gonuma)
 
 ## Original Author
 
-* [lrita@163.com](https://github.com/lrita/numa)
+- [lrita@163.com](https://github.com/lrita/numa)
 
 ## Usage
 
