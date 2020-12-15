@@ -64,7 +64,7 @@ func (b Bitmask) String() string {
 // Text returns the digital bit text of this bitmask.
 func (b Bitmask) Text() string {
 	var (
-		s   []string
+		s      []string
 		length = b.Len() * 8
 	)
 	for i := 0; i < length; i++ {
