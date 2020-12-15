@@ -106,7 +106,7 @@ func TestMemPolicy(t *testing.T) {
 	t.Log("ncpumask =", gonuma.NUMAcpuMax)
 	t.Log("nconfiguredcpu =", gonuma.NUMAconfiguredcpu)
 
-	mode, err := gonuma.GetMemPolicy(nil, nil, 0)
+	mode, _ := gonuma.GetMemPolicy(nil, nil, 0)
 	// assert.NoError(err) // XXX(jhj): Test fails in Docker?
 	assert.True(mode >= 0 && mode < gonuma.MPolMax, "%#v", mode)
 	assert.NoError(gonuma.SetMemPolicy(gonuma.MPolDefault, nil))
