@@ -52,9 +52,9 @@ if [ ! -f "./.gonuma_root" ]; then
 fi
 
 export CGO_ENABLED="1"
-export TEST1_TAGS='-tags=osnetgo,osusergo,leaktest,purego'
-export TEST2_TAGS='-tags=osnetgo,osusergo,leaktest,amd64'
-export TEST_FLAGS="-count=1 -covermode=atomic -cpu=1 -parallel=1 -race -trimpath"
+export TEST1_TAGS='-tags=osnetgo,osusergo,purego'
+export TEST2_TAGS='-tags=osnetgo,osusergo,amd64'
+export TEST_FLAGS="-count=1 -covermode=atomic -cpu=1 -parallel=1 -trimpath"
 # shellcheck disable=SC2155
 export GOC_TARGETS="$(go list ./... |
 	grep -v test |
