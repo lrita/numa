@@ -42,7 +42,11 @@ func setupconfigurednodes() (n int) {
 
 // GetMemPolicy retrieves the NUMA policy of the calling process or of a
 // memory address, depending on the setting of flags.
-func GetMemPolicy(nodemask Bitmask, addr unsafe.Pointer, flags int) (mode int, err error) {
+func GetMemPolicy(
+	nodemask Bitmask,
+	addr unsafe.Pointer,
+	flags int,
+) (mode int, err error) {
 	return 0, syscall.ENOSYS
 }
 
@@ -58,11 +62,17 @@ func NodeMemSize64(node int) (total, free int64, err error) {
 	return 0, 0, syscall.ENOSYS
 }
 
-// MBind sets the NUMA memory policy, which consists of a policy mode and zero
+// MBind sets the NUMA memory policy, which consists of a policy mode and
+// zero
 // or more nodes, for the memory range starting with addr and continuing for
-// length bytes. The memory policy defines from which node memory is allocated.
+// length bytes. The memory policy defines from which node memory is
+// allocated.
 // Details to see manpage of mbind.
-func MBind(addr unsafe.Pointer, length, mode, flags int, nodemask Bitmask) error {
+func MBind(
+	addr unsafe.Pointer,
+	length, mode, flags int,
+	nodemask Bitmask,
+) error {
 	return syscall.ENOSYS
 }
 
@@ -80,7 +90,8 @@ func SetSchedAffinity(pid int, cpumask Bitmask) error {
 	return syscall.ENOSYS
 }
 
-// GetCPUAndNode returns the node id and cpu id which current caller running on.
+// GetCPUAndNode returns the node id and cpu id which current caller running
+// on.
 func GetCPUAndNode() (cpu, node int) {
 	cpu = runtime_procPin()
 	runtime_procUnpin()

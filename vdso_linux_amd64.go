@@ -6,40 +6,43 @@ import (
 )
 
 const (
-	_AT_NULL         = 0 // End of vector
-	_AT_SYSINFO_EHDR = 33
+	AtNull        = 0 // End of vector
+	AtSysInfoEHdr = 33
 
-	_PT_LOAD    = 1 /* Loadable program segment */
-	_PT_DYNAMIC = 2 /* Dynamic linking information */
+	PtLoad    = 1 /* Loadable program segment */
+	PtDynamic = 2 /* Dynamic linking information */
 
-	_DT_NULL     = 0          /* Marks end of dynamic section */
-	_DT_HASH     = 4          /* Dynamic symbol hash table */
-	_DT_STRTAB   = 5          /* Address of string table */
-	_DT_SYMTAB   = 6          /* Address of symbol table */
-	_DT_GNU_HASH = 0x6ffffef5 /* GNU-style dynamic symbol hash table */
-	_DT_VERSYM   = 0x6ffffff0
-	_DT_VERDEF   = 0x6ffffffc
+	DtNull    = 0          /* Marks end of dynamic section */
+	DtHash    = 4          /* Dynamic symbol hash table */
+	DtStrTab  = 5          /* Address of string table */
+	DtSymTab  = 6          /* Address of symbol table */
+	DtGNUHash = 0x6ffffef5 /* GNU-style dynamic symbol hash table */
+	DtVerSym  = 0x6ffffff0
+	DtVerDef  = 0x6ffffffc
 
-	_VER_FLG_BASE = 0x1 /* Version definition of file itself */
+	VerFlagBase = 0x1 /* Version definition of file itself */
 
-	_SHN_UNDEF = 0 /* Undefined section */
+	ShnUndef = 0 /* Undefined section */
 
-	_SHT_DYNSYM = 11 /* Dynamic linker symbol table */
+	ShtDynSym = 11 /* Dynamic linker symbol table */
 
-	_STT_FUNC = 2 /* Symbol is a code object */
+	SttFunc = 2 /* Symbol is a code object */
 
-	_STT_NOTYPE = 0 /* Symbol type is not specified */
+	SttNoType = 0 /* Symbol type is not specified */
 
-	_STB_GLOBAL = 1 /* Global symbol */
-	_STB_WEAK   = 2 /* Weak symbol */
+	StbGlobal = 1 /* Global symbol */
+	StbWeak   = 2 /* Weak symbol */
 
-	_EI_NIDENT = 16
+	EINIdent = 16
 
-	// vdsoArrayMax is the byte-size of a maximally sized array on this architecture.
-	// See cmd/compile/internal/amd64/galign.go arch.MAXWIDTH initialization.
+	// vdsoArrayMax is the byte-size of a maximally sized array on this
+	// architecture.
+	// See cmd/compile/internal/amd64/galign.go arch.MAXWIDTH
+	// initialization.
 	vdsoArrayMax = 1<<50 - 1
 
-	// Maximum indices for the array types used when traversing the vDSO ELF structures.
+	// Maximum indices for the array types used when traversing the vDSO ELF
+	// structures.
 	// Computed from architecture-specific max provided by vdso_linux_*.go
 	VdsoSymTabSize     = vdsoArrayMax / unsafe.Sizeof(elfSym{})
 	vdsoDynSize        = vdsoArrayMax / unsafe.Sizeof(elfDyn{})
@@ -47,7 +50,8 @@ const (
 	vdsoVerSymSize     = vdsoArrayMax / 2 // uint16
 	vdsoHashSize       = vdsoArrayMax / 4 // uint32
 
-	// vdsoBloomSizeScale is a scaling factor for gnuhash tables which are uint32 indexed,
+	// vdsoBloomSizeScale is a scaling factor for gnuhash tables which are
+	// uint32 indexed,
 	// but contain uintptrs
 	vdsoBloomSizeScale = unsafe.Sizeof(uintptr(0)) / 4 // uint32
 )
@@ -60,50 +64,50 @@ type vdsoVersionKey struct {
 // ELF64 structure definitions for use by the vDSO loader
 
 type elfSym struct {
-	st_name  uint32
-	st_info  byte
+	stName   uint32
+	stInfo   byte
 	st_other byte
-	st_shndx uint16
-	st_value uint64
+	stShndx  uint16
+	stValue  uint64
 	st_size  uint64
 }
 
 type elfVerdef struct {
-	vd_version uint16 /* Version revision */
-	vd_flags   uint16 /* Version information */
-	vd_ndx     uint16 /* Version Index */
-	vd_cnt     uint16 /* Number of associated aux entries */
-	vd_hash    uint32 /* Version name hash value */
-	vd_aux     uint32 /* Offset in bytes to verdaux array */
-	vd_next    uint32 /* Offset in bytes to next verdef entry */
+	vdVersion uint16 /* Version revision */
+	vdFlags   uint16 /* Version information */
+	vdNdx     uint16 /* Version Index */
+	vdCnt     uint16 /* Number of associated aux entries */
+	vdHash    uint32 /* Version name hash value */
+	vdAux     uint32 /* Offset in bytes to verdaux array */
+	vdNext    uint32 /* Offset in bytes to next verdef entry */
 }
 
 type elfEhdr struct {
-	e_ident     [_EI_NIDENT]byte /* Magic number and other info */
-	e_type      uint16           /* Object file type */
-	e_machine   uint16           /* Architecture */
-	e_version   uint32           /* Object file version */
-	e_entry     uint64           /* Entry point virtual address */
-	e_phoff     uint64           /* Program header table file offset */
-	e_shoff     uint64           /* Section header table file offset */
-	e_flags     uint32           /* Processor-specific flags */
-	e_ehsize    uint16           /* ELF header size in bytes */
-	e_phentsize uint16           /* Program header table entry size */
-	e_phnum     uint16           /* Program header table entry count */
-	e_shentsize uint16           /* Section header table entry size */
-	e_shnum     uint16           /* Section header table entry count */
-	e_shstrndx  uint16           /* Section header string table index */
+	eIdent     [EINIdent]byte /* Magic number and other info */
+	eType      uint16         /* Object file type */
+	eMachine   uint16         /* Architecture */
+	eVersion   uint32         /* Object file version */
+	eEntry     uint64         /* Entry point virtual address */
+	ePhoff     uint64         /* Program header table file offset */
+	eShoff     uint64         /* Section header table file offset */
+	eFlags     uint32         /* Processor-specific flags */
+	eEhsize    uint16         /* ELF header size in bytes */
+	ePhentsize uint16         /* Program header table entry size */
+	ePhnum     uint16         /* Program header table entry count */
+	eShentsize uint16         /* Section header table entry size */
+	eShnum     uint16         /* Section header table entry count */
+	eShstrndx  uint16         /* Section header string table index */
 }
 
 type elfPhdr struct {
-	p_type   uint32 /* Segment type */
-	p_flags  uint32 /* Segment flags */
-	p_offset uint64 /* Segment file offset */
-	p_vaddr  uint64 /* Segment virtual address */
-	p_paddr  uint64 /* Segment physical address */
-	p_filesz uint64 /* Segment size in file */
-	p_memsz  uint64 /* Segment size in memory */
-	p_align  uint64 /* Segment alignment */
+	pType   uint32 /* Segment type */
+	pFlags  uint32 /* Segment flags */
+	pOffset uint64 /* Segment file offset */
+	pVaddr  uint64 /* Segment virtual address */
+	pPaddr  uint64 /* Segment physical address */
+	pFilesz uint64 /* Segment size in file */
+	pMemsz  uint64 /* Segment size in memory */
+	pAlign  uint64 /* Segment alignment */
 }
 
 type elfShdr struct {
@@ -120,13 +124,13 @@ type elfShdr struct {
 }
 
 type elfDyn struct {
-	d_tag int64  /* Dynamic entry type */
-	d_val uint64 /* Integer value */
+	dTag int64  /* Dynamic entry type */
+	dVal uint64 /* Integer value */
 }
 
 type elfVerdaux struct {
-	vda_name uint32 /* Version or dependency names */
-	vda_next uint32 /* Offset in bytes to next verdaux entry */
+	vdaName uint32 /* Version or dependency names */
+	vdaNext uint32 /* Offset in bytes to next verdaux entry */
 }
 
 type vdsoInfo struct {
@@ -157,9 +161,9 @@ var (
 	vdsoGetCPU uintptr
 )
 
-/* How to extract and insert information held in the st_info field.  */
-func _ELF_ST_BIND(val byte) byte { return val >> 4 }
-func _ELF_ST_TYPE(val byte) byte { return val & 0xf }
+/* How to extract and insert information held in the stInfo field.  */
+func ELFstBind(val byte) byte { return val >> 4 }
+func ELFstType(val byte) byte { return val & 0xf }
 
 //go:nosplit
 func add(p unsafe.Pointer, x uintptr) unsafe.Pointer {
@@ -174,23 +178,29 @@ func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 	info.valid = false
 	info.loadAddr = unsafe.Pointer(hdr)
 
-	pt := unsafe.Pointer(uintptr(info.loadAddr) + uintptr(hdr.e_phoff))
+	pt := unsafe.Pointer(uintptr(info.loadAddr) + uintptr(hdr.ePhoff))
 
 	// We need two things from the segment table: the load offset
 	// and the dynamic table.
 	var foundVaddr bool
 	var dyn *[vdsoDynSize]elfDyn
-	for i := uint16(0); i < hdr.e_phnum; i++ {
+	for i := uint16(0); i < hdr.ePhnum; i++ {
 		pt := (*elfPhdr)(add(pt, uintptr(i)*unsafe.Sizeof(elfPhdr{})))
-		switch pt.p_type {
-		case _PT_LOAD:
+		switch pt.pType {
+		case PtLoad:
 			if !foundVaddr {
 				foundVaddr = true
-				info.loadOffset = unsafe.Pointer(uintptr(info.loadAddr) + uintptr(pt.p_offset-pt.p_vaddr))
+				info.loadOffset = unsafe.Pointer(
+					uintptr(info.loadAddr) + uintptr(pt.pOffset-pt.pVaddr),
+				)
 			}
 
-		case _PT_DYNAMIC:
-			dyn = (*[vdsoDynSize]elfDyn)(unsafe.Pointer(uintptr(info.loadAddr) + uintptr(pt.p_offset)))
+		case PtDynamic:
+			dyn = (*[vdsoDynSize]elfDyn)(
+				unsafe.Pointer(
+					uintptr(info.loadAddr) + uintptr(pt.pOffset),
+				),
+			)
 		}
 	}
 
@@ -205,26 +215,27 @@ func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 	info.symtab = nil
 	info.versym = nil
 	info.verdef = nil
-	for i := 0; dyn[i].d_tag != _DT_NULL; i++ {
+	for i := 0; dyn[i].dTag != DtNull; i++ {
 		dt := &dyn[i]
-		p := unsafe.Pointer(uintptr(info.loadOffset) + uintptr(dt.d_val))
-		switch dt.d_tag {
-		case _DT_STRTAB:
+		p := unsafe.Pointer(uintptr(info.loadOffset) + uintptr(dt.dVal))
+		switch dt.dTag {
+		case DtStrTab:
 			info.symstrings = (*[VdsoSymStringsSize]byte)(unsafe.Pointer(p))
-		case _DT_SYMTAB:
+		case DtSymTab:
 			info.symtab = (*[VdsoSymTabSize]elfSym)(unsafe.Pointer(p))
-		case _DT_HASH:
+		case DtHash:
 			hash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
-		case _DT_GNU_HASH:
+		case DtGNUHash:
 			gnuhash = (*[vdsoHashSize]uint32)(unsafe.Pointer(p))
-		case _DT_VERSYM:
+		case DtVerSym:
 			info.versym = (*[vdsoVerSymSize]uint16)(unsafe.Pointer(p))
-		case _DT_VERDEF:
+		case DtVerDef:
 			info.verdef = (*elfVerdef)(unsafe.Pointer(p))
 		}
 	}
 
-	if info.symstrings == nil || info.symtab == nil || (hash == nil && gnuhash == nil) {
+	if info.symstrings == nil || info.symtab == nil ||
+		(hash == nil && gnuhash == nil) {
 		return // Failed
 	}
 
@@ -259,17 +270,22 @@ func vdsoFindVersion(info *vdsoInfo, ver *vdsoVersionKey) int32 {
 
 	def := info.verdef
 	for {
-		if def.vd_flags&_VER_FLG_BASE == 0 {
-			aux := (*elfVerdaux)(add(unsafe.Pointer(def), uintptr(def.vd_aux)))
-			if def.vd_hash == ver.verHash && ver.version == gostringnocopy(&info.symstrings[aux.vda_name]) {
-				return int32(def.vd_ndx & 0x7fff)
+		if def.vdFlags&VerFlagBase == 0 {
+			aux := (*elfVerdaux)(
+				add(unsafe.Pointer(def), uintptr(def.vdAux)),
+			)
+			if def.vdHash == ver.verHash &&
+				ver.version == gostringnocopy(
+					&info.symstrings[aux.vdaName],
+				) {
+				return int32(def.vdNdx & 0x7fff)
 			}
 		}
 
-		if def.vd_next == 0 {
+		if def.vdNext == 0 {
 			break
 		}
-		def = (*elfVerdef)(add(unsafe.Pointer(def), uintptr(def.vd_next)))
+		def = (*elfVerdef)(add(unsafe.Pointer(def), uintptr(def.vdNext)))
 	}
 
 	return -1 // cannot match any version
@@ -282,21 +298,23 @@ func vdsoParseSymbols(name string, info *vdsoInfo, version int32) uintptr {
 
 	load := func(symIndex uint32, name string) uintptr {
 		sym := &info.symtab[symIndex]
-		typ := _ELF_ST_TYPE(sym.st_info)
-		bind := _ELF_ST_BIND(sym.st_info)
-		// On ppc64x, VDSO functions are of type _STT_NOTYPE.
-		if typ != _STT_FUNC && typ != _STT_NOTYPE || bind != _STB_GLOBAL && bind != _STB_WEAK || sym.st_shndx == _SHN_UNDEF {
+		typ := ELFstType(sym.stInfo)
+		bind := ELFstBind(sym.stInfo)
+		// On ppc64x, VDSO functions are of type SttNoType.
+		if typ != SttFunc && typ != SttNoType || bind != StbGlobal && bind != StbWeak ||
+			sym.stShndx == ShnUndef {
 			return 0
 		}
-		if name != gostringnocopy(&info.symstrings[sym.st_name]) {
+		if name != gostringnocopy(&info.symstrings[sym.stName]) {
 			return 0
 		}
 		// Check symbol version.
-		if info.versym != nil && version != 0 && int32(info.versym[symIndex]&0x7fff) != version {
+		if info.versym != nil && version != 0 &&
+			int32(info.versym[symIndex]&0x7fff) != version {
 			return 0
 		}
 
-		return uintptr(info.loadOffset) + uintptr(sym.st_value)
+		return uintptr(info.loadOffset) + uintptr(sym.stValue)
 	}
 
 	if !info.isGNUHash {
@@ -359,12 +377,15 @@ func init() {
 	}
 	var base unsafe.Pointer
 	auxv := (*(*[128]uintptr)(unsafe.Pointer(&d[0])))[:len(d)/int(unsafe.Sizeof(uintptr(0)))]
-	for i := 0; auxv[i] != _AT_NULL; i += 2 {
+	for i := 0; auxv[i] != AtNull; i += 2 {
 		tag, val := auxv[i], auxv[i+1]
-		if tag != _AT_SYSINFO_EHDR || val == 0 {
+		if tag != AtSysInfoEHdr || val == 0 {
 			continue
 		}
-		vdsoInitFromSysinfoEhdr(&vdsoinfo, (*elfEhdr)(unsafe.Pointer(uintptr(base)+val)))
+		vdsoInitFromSysinfoEhdr(
+			&vdsoinfo,
+			(*elfEhdr)(unsafe.Pointer(uintptr(base)+val)),
+		)
 	}
 	vdsoVersion = vdsoFindVersion(&vdsoinfo, &vdsoLinuxVersion)
 	initVDSOAll()

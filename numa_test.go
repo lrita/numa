@@ -18,7 +18,10 @@ func TestNotNUMAavailable(t *testing.T) {
 	assert := require.New(t)
 	_, err := gonuma.GetMemPolicy(nil, nil, 0)
 	assert.Equal(syscall.ENOSYS, err)
-	assert.Equal(syscall.ENOSYS, gonuma.SetMemPolicy(gonuma.MPOL_DEFAULT, nil))
+	assert.Equal(
+		syscall.ENOSYS,
+		gonuma.SetMemPolicy(gonuma.MPolDefault, nil),
+	)
 	assert.Equal(syscall.ENOSYS, gonuma.Bind(nil))
 	assert.Equal(syscall.ENOSYS, gonuma.MBind(nil, 0, 0, 0, nil))
 
@@ -81,7 +84,10 @@ func TestNodeMemSize64(t *testing.T) {
 func TestNUMAAPI(t *testing.T) {
 	assert := require.New(t)
 	assert.True(gonuma.MaxNodeID() >= 0, "gonuma.MaxNodeID() >= 0")
-	assert.True(gonuma.MaxPossibleNodeID() >= 0, "gonuma.MaxPossibleNodeID() >= 0")
+	assert.True(
+		gonuma.MaxPossibleNodeID() >= 0,
+		"gonuma.MaxPossibleNodeID() >= 0",
+	)
 	assert.True(gonuma.MaxPossibleNodeID() >= gonuma.MaxNodeID())
 	assert.True(gonuma.NodeCount() > 0, "NodeCount() > 0")
 	assert.True(gonuma.NodePossibleCount() > 0, "NodePossibleCount() > 0")
@@ -102,8 +108,8 @@ func TestMemPolicy(t *testing.T) {
 
 	mode, err := gonuma.GetMemPolicy(nil, nil, 0)
 	assert.NoError(err)
-	assert.True(mode >= 0 && mode < gonuma.MPOL_MAX, "%#v", mode)
-	assert.NoError(gonuma.SetMemPolicy(gonuma.MPOL_DEFAULT, nil))
+	assert.True(mode >= 0 && mode < gonuma.MPolMax, "%#v", mode)
+	assert.NoError(gonuma.SetMemPolicy(gonuma.MPolDefault, nil))
 }
 
 func TestGetMemAllowedNodeMaskAndBind(t *testing.T) {
@@ -165,7 +171,7 @@ func TestMBind(t *testing.T) {
 	assert := require.New(t)
 
 	assert.Equal(syscall.EINVAL,
-		gonuma.MBind(unsafe.Pointer(t), 100, gonuma.MPOL_DEFAULT, 0, nil))
+		gonuma.MBind(unsafe.Pointer(t), 100, gonuma.MPolDefault, 0, nil))
 }
 
 func TestGetNodeAndCPU(t *testing.T) {

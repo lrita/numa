@@ -15,7 +15,15 @@ import (
 )
 
 func init() {
-	_, _, e1 := syscall.Syscall6(syscall.SYS_GET_MEMPOLICY, 0, 0, 0, 0, 0, 0)
+	_, _, e1 := syscall.Syscall6(
+		syscall.SYS_GET_MEMPOLICY,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+	)
 	available = e1 != syscall.ENOSYS
 	NUMAnodemax = setupnodemask() // max nodes
 	memnodes = NewBitmask(NodePossibleCount())
@@ -33,37 +41,44 @@ func init() {
 // If flags is specified as 0, then information about the calling process's
 // default policy (as set by set_mempolicy(2)) is returned. The policy
 // returned [mode and nodemask] may be used to restore the process's policy
-// to its state at the time of the call to get_mempolicy() using set_mempolicy(2).
+// to its state at the time of the call to get_mempolicy() using
+// set_mempolicy(2).
 //
-// If flags specifies MPOL_F_MEMS_ALLOWED (available since Linux 2.6.24),
+// If flags specifies MPolFMemsAllowed (available since Linux 2.6.24),
 // the mode argument is ignored and the set of nodes [memories] that the
 // process is allowed to specify in subsequent calls to mbind(2) or
 // set_mempolicy(2) [in the absence of any mode flags] is returned in
-// nodemask. It is not permitted to combine MPOL_F_MEMS_ALLOWED with
-// either MPOL_F_ADDR or MPOL_F_NODE.
+// nodemask. It is not permitted to combine MPolFMemsAllowed with
+// either MPolFAddr or MPolFNode.
 //
-// If flags specifies MPOL_F_ADDR, then information is returned about the
+// If flags specifies MPolFAddr, then information is returned about the
 // policy governing the memory address given in addr. This policy may be
 // different from the process's default policy if mbind(2) or one of the
 // helper functions described in numa(3) has been used to establish a policy
 // for the memory range containing addr.
 //
-// If flags specifies both MPOL_F_NODE and MPOL_F_ADDR, get_mempolicy() will
-// return the node ID of the node on which the address addr is allocated into
-// the location pointed to by mode. If no page has yet been allocated for the
+// If flags specifies both MPolFNode and MPolFAddr, get_mempolicy() will
+// return the node ID of the node on which the address addr is allocated
+// into
+// the location pointed to by mode. If no page has yet been allocated for
+// the
 // specified address, get_mempolicy() will allocate a page as if the process
 // had performed a read [load] access to that address, and return the ID of
 // the node where that page was allocated.
 //
-// If flags specifies MPOL_F_NODE, but not MPOL_F_ADDR, and the process's
-// current policy is MPOL_INTERLEAVE, then get_mempolicy() will return in
+// If flags specifies MPolFNode, but not MPolFAddr, and the process's
+// current policy is MPolInterleave, then get_mempolicy() will return in
 // the location pointed to by a non-NULL mode argument, the node ID of the
 // next node that will be used for interleaving of internal kernel pages
 // allocated on behalf of the process. These allocations include pages for
 // memory mapped files in process memory ranges mapped using the mmap(2)
 // call with the MAP_PRIVATE flag for read accesses, and in memory ranges
 // mapped with the MAP_SHARED flag for all accesses.
-func GetMemPolicy(nodemask Bitmask, addr unsafe.Pointer, flags int) (mode int, err error) {
+func GetMemPolicy(
+	nodemask Bitmask,
+	addr unsafe.Pointer,
+	flags int,
+) (mode int, err error) {
 	var mask, maxnode uintptr
 	if maxnode = uintptr(nodemask.Len()); maxnode != 0 {
 		mask = uintptr(unsafe.Pointer(&nodemask[0]))
@@ -88,30 +103,39 @@ func GetMemPolicy(nodemask Bitmask, addr unsafe.Pointer, flags int) (mode int, e
 
 // This system call defines the default policy for the process. The process
 // policy governs allocation of pages in the process's address space outside
-// of memory ranges controlled by a more specific policy set by mbind(2). The
+// of memory ranges controlled by a more specific policy set by mbind(2).
+// The
 // process default policy also controls allocation of any pages for memory
 // mapped files mapped using the mmap(2) call with the MAP_PRIVATE flag and
-// that are only read [loaded] from by the process and of memory mapped files
+// that are only read [loaded] from by the process and of memory mapped
+// files
 // mapped using the mmap(2) call with the MAP_SHARED flag, regardless of the
-// access type. The policy is applied only when a new page is allocated for the
-// process. For anonymous memory this is when the page is first touched by the
+// access type. The policy is applied only when a new page is allocated for
+// the
+// process. For anonymous memory this is when the page is first touched by
+// the
 // application.
 //
-// The mode argument must specify one of MPOL_DEFAULT, MPOL_BIND,
-// MPOL_INTERLEAVE or MPOL_PREFERRED.
-// All modes except MPOL_DEFAULT require the caller to specify via the nodemask
+// The mode argument must specify one of MPolDefault, MPolBind,
+// MPolInterleave or MPolPreferred.
+// All modes except MPolDefault require the caller to specify via the
+// nodemask
 // argument one or more nodes.
 //
-// The mode argument may also include an optional mode flag. The supported mode
-// flags are: MPOL_F_STATIC_NODES and MPOL_F_RELATIVE_NODES.
+// The mode argument may also include an optional mode flag. The supported
+// mode
+// flags are: MPolFStaticNodes and MPolFRelativeNodes.
 //
 // Where a nodemask is required, it must contain at least one node that is
 // on-line, allowed by the process's current cpuset context,
-// [unless the MPOL_F_STATIC_NODES mode flag is specified], and contains memory.
-// If the MPOL_F_STATIC_NODES is set in mode and a required nodemask contains
-// no nodes that are allowed by the process's current cpuset context, the memory
+// [unless the MPolFStaticNodes mode flag is specified], and contains
+// memory.
+// If the MPolFStaticNodes is set in mode and a required nodemask contains
+// no nodes that are allowed by the process's current cpuset context, the
+// memory
 // policy reverts to local  allocation. This effectively overrides the
-// specified policy until the process's cpuset context includes one or more of
+// specified policy until the process's cpuset context includes one or more
+// of
 // the nodes specified by nodemask.
 func SetMemPolicy(mode int, nodemask Bitmask) (err error) {
 	var mask, maxnode uintptr
@@ -126,41 +150,60 @@ func SetMemPolicy(mode int, nodemask Bitmask) (err error) {
 	return
 }
 
-// MBind sets the NUMA memory policy, which consists of a policy mode and zero
+// MBind sets the NUMA memory policy, which consists of a policy mode and
+// zero
 // or more nodes, for the memory range starting with addr and continuing for
-// length bytes. The memory policy defines from which node memory is allocated.
+// length bytes. The memory policy defines from which node memory is
+// allocated.
 // Details to see manpage of mbind.
 //
-// If the memory range specified by the addr and length arguments includes an
+// If the memory range specified by the addr and length arguments includes
+// an
 // "anonymous" region of memory that is a region of memory created using the
-// mmap(2) system call with the MAP_ANONYMOUS or a memory mapped file, mapped
+// mmap(2) system call with the MAP_ANONYMOUS or a memory mapped file,
+// mapped
 // using the mmap(2) system call with the MAP_PRIVATE flag, pages will be
-// allocated only according to the specified policy when the application writes
+// allocated only according to the specified policy when the application
+// writes
 // [stores] to the page. For anonymous regions, an initial read access will
-// use a shared page in the kernel containing all zeros. For a file mapped with
+// use a shared page in the kernel containing all zeros. For a file mapped
+// with
 // MAP_PRIVATE, an initial read access will allocate pages according to the
-// process policy of the process that causes the page to be allocated. This may
+// process policy of the process that causes the page to be allocated. This
+// may
 // not be the process that called mbind().
 //
 // The specified policy will be ignored for any MAP_SHARED mappings in the
-// specified memory range. Rather the pages will be allocated according to the
-// process policy of the process that caused the page to be allocated. Again,
+// specified memory range. Rather the pages will be allocated according to
+// the
+// process policy of the process that caused the page to be allocated.
+// Again,
 // this may not be the process that called mbind().
 //
-// If the specified memory range includes a shared memory region created using
-// the shmget(2) system call and attached using the shmat(2) system call, pages
+// If the specified memory range includes a shared memory region created
+// using
+// the shmget(2) system call and attached using the shmat(2) system call,
+// pages
 // allocated for the anonymous or shared memory region will be allocated
-// according to the policy specified, regardless which process attached to the
-// shared  memory segment causes the allocation. If, however, the shared memory
+// according to the policy specified, regardless which process attached to
+// the
+// shared  memory segment causes the allocation. If, however, the shared
+// memory
 // region was created with the SHM_HUGETLB flag, the huge pages will be
-// allocated according to the policy specified only if the page allocation is
+// allocated according to the policy specified only if the page allocation
+// is
 // caused by the process that calls mbind() for that region.
 //
 // By default, mbind() has an effect only for new allocations; if the pages
-// inside the range have been already touched before setting the policy, then
+// inside the range have been already touched before setting the policy,
+// then
 // the policy has no effect. This default behavior may be overridden by the
-// MPOL_MF_MOVE and MPOL_MF_MOVE_ALL flags described below.
-func MBind(addr unsafe.Pointer, length, mode, flags int, nodemask Bitmask) (err error) {
+// MPolMFMove and MPolMFMoveAll flags described below.
+func MBind(
+	addr unsafe.Pointer,
+	length, mode, flags int,
+	nodemask Bitmask,
+) (err error) {
 	var mask, maxnode uintptr
 	if maxnode = uintptr(nodemask.Len()); maxnode != 0 {
 		mask = uintptr(unsafe.Pointer(&nodemask[0]))
@@ -227,7 +270,8 @@ func setupnodemask() (n int) {
 		for n < 4096*8 {
 			n <<= 1
 			mask := NewBitmask(n)
-			if _, err := GetMemPolicy(mask, nil, 0); err != nil && err != syscall.EINVAL {
+			if _, err := GetMemPolicy(mask, nil, 0); err != nil &&
+				err != syscall.EINVAL {
 				break
 			}
 		}
@@ -376,13 +420,15 @@ var NUMAfastway = cpuid.HasFeature(cpuid.RDTSCP)
 
 func getcpu()
 
-// GetCPUAndNode returns the node id and cpu id which current caller running on.
+// GetCPUAndNode returns the node id and cpu id which current caller running
+// on.
 //
 // equal:
 //
 // if NUMAfastway {
 // 	call RDTSCP
-//  The linux kernel will fill the node cpu id in the private data of each cpu.
+// The linux kernel will fill the node cpu id in the private data of each
+// cpu.
 //  arch/x86/kernel/vsyscall_64.c@vsyscall_set_cpu
 // }
 // call vdsoGetCPU

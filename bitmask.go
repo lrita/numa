@@ -43,7 +43,8 @@ func (b Bitmask) SetAll() {
 	}
 }
 
-// OnesCount returns the number of one bits ("population count") in this bitmask.
+// OnesCount returns the number of one bits ("population count") in this
+// bitmask.
 func (b Bitmask) OnesCount() (n int) {
 	for _, v := range b {
 		n += bits.OnesCount64(v)
@@ -84,8 +85,10 @@ func (b Bitmask) Clone() Bitmask {
 	return bb
 }
 
-// NewBitmask returns a bitmask, which length always rounded to a multiple of
-// sizeof(uint64). The input param n represents the bit count of this bitmask.
+// NewBitmask returns a bitmask, which length always rounded to a multiple
+// of
+// sizeof(uint64). The input param n represents the bit count of this
+// bitmask.
 func NewBitmask(n int) Bitmask {
 	return make(Bitmask, (n+63)/64)
 }

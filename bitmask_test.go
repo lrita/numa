@@ -36,7 +36,10 @@ func TestBitmask(t *testing.T) {
 
 		if i != 0 {
 			assert.Equal(len(mask), strings.Count(mask.String(), ",")+1)
-			assert.Equal(mask.OnesCount(), strings.Count(mask.Text(), ",")+1)
+			assert.Equal(
+				mask.OnesCount(),
+				strings.Count(mask.Text(), ",")+1,
+			)
 		} else {
 			assert.Empty(mask.String())
 			assert.Empty(mask.Text())
