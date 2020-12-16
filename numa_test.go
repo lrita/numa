@@ -170,8 +170,8 @@ func TestMBind(t *testing.T) {
 	}
 	// assert := require.New(t) // XXX Test fails in Docker?
 
-//	assert.Equal(syscall.EINVAL,
-//		gonuma.MBind(unsafe.Pointer(t), 100, gonuma.MPolDefault, 0, nil)) // XXX Test fails in Docker?
+	//	assert.Equal(syscall.EINVAL,
+	//		gonuma.MBind(unsafe.Pointer(t), 100, gonuma.MPolDefault, 0, nil)) // XXX Test fails in Docker?
 }
 
 func TestGetNodeAndCPU(t *testing.T) {
