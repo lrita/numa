@@ -12,6 +12,7 @@
 [![CodeclimateMaintainability](https://api.codeclimate.com/v1/badges/61db603e26c07e0e9ee4/maintainability)](https://codeclimate.com/github/johnsonjh/gonuma/maintainability)
 [![TickgitTODOs](https://img.shields.io/endpoint?url=https://api.tickgit.com/badge?repo=github.com/johnsonjh/gonuma)](https://www.tickgit.com/browse?repo=github.com/johnsonjh/gonuma)
 [![DeepSource](https://deepsource.io/gh/johnsonjh/gonuma.svg/?label=active+issues)](https://deepsource.io/gh/johnsonjh/gonuma/?ref=repository-badge)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjohnsonjh%2Fgonuma.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjohnsonjh%2Fgonuma?ref=badge_shield)
 
 `gonuma` is a Go utility library for writing NUMA-aware applications
 
@@ -54,3 +55,7 @@
     objects[cpu].X = xx
  }
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjohnsonjh%2Fgonuma.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjohnsonjh%2Fgonuma?ref=badge_large)
