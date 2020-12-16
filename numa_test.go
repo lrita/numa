@@ -5,7 +5,7 @@ import (
 	"sync"
 	"syscall"
 	"testing"
-	"unsafe"
+	_ "unsafe"
 
 	gonuma "github.com/johnsonjh/gonuma"
 	"github.com/stretchr/testify/require"
@@ -168,7 +168,7 @@ func TestMBind(t *testing.T) {
 	if !gonuma.NUMAavailable() {
 		t.Skip()
 	}
-	assert := require.New(t)
+	// assert := require.New(t) // XXX Test fails in Docker?
 
 //	assert.Equal(syscall.EINVAL,
 //		gonuma.MBind(unsafe.Pointer(t), 100, gonuma.MPolDefault, 0, nil)) // XXX Test fails in Docker?
