@@ -1,7 +1,7 @@
 package numa
 
 import (
-	"io/ioutil"
+	"os"
 	"unsafe"
 )
 
@@ -353,12 +353,17 @@ func elfGNUHash(name string) (h uint32) {
 }
 
 func init() {
-	d, err := ioutil.ReadFile("/proc/self/auxv")
+	fd, err := os.Open("/proc/self/auxv")
 	if err != nil {
 		panic(err)
 	}
+	var auxv [128]uintptr
+	n, err := fd.Read((*(*[128 * unsafe.Sizeof(auxv[0])]byte)(unsafe.Pointer(&auxv)))[:])
+	if err != nil || n <= 0 {
+		panic(err)
+	}
 	var base unsafe.Pointer
-	auxv := (*(*[128]uintptr)(unsafe.Pointer(&d[0])))[:len(d)/int(unsafe.Sizeof(uintptr(0)))]
+	auxv[len(auxv)-2] = _AT_NULL // Make sure auxv is terminated, even if we didn't read the whole file.
 	for i := 0; auxv[i] != _AT_NULL; i += 2 {
 		tag, val := auxv[i], auxv[i+1]
 		if tag != _AT_SYSINFO_EHDR || val == 0 {
