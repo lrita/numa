@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 package numa
@@ -5,7 +6,6 @@ package numa
 import (
 	"fmt"
 	"io/ioutil"
-	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -311,14 +311,11 @@ func setupconstraints() {
 		if err != nil {
 			continue
 		}
+		nn := 32
 		cpumask := NewBitmask(CPUCount())
 		tokens := strings.Split(strings.TrimSpace(string(d)), ",")
 		for j := 0; j < len(tokens); j++ {
 			mask, _ := strconv.ParseUint(tokens[len(tokens)-1-j], 16, 64)
-			nn := 64
-			if runtime.GOARCH == "386" {
-				nn = 32
-			}
 			for k := 0; k < nn; k++ {
 				if (mask>>uint64(k))&0x01 != 0 {
 					cpumask.Set(k+j*nn, true)

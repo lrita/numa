@@ -1,9 +1,12 @@
+//go:build linux
 // +build linux
 
 package numa
 
 import (
+	"fmt"
 	"runtime"
+	"strings"
 	"sync"
 	"testing"
 
@@ -45,16 +48,6 @@ func TestGetNodeAndCPU2(t *testing.T) {
 	}
 	wg.Wait()
 
-	for i := 0; i < 2*CPUCount(); i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			cpu, node := GetCPUAndNode()
-			t.Logf("TestGetNodeAndCPU2 cpu %v node %v", cpu, node)
-		}()
-	}
-	wg.Wait()
-
 	nmask := NodeMask()
 	for i := 0; i < nodem.Len(); i++ {
 		if !nodem.Get(i) {
@@ -70,5 +63,32 @@ func TestGetNodeAndCPU2(t *testing.T) {
 			}
 			assert.True(cpumask.Get(j), "cpu %d @ node %d", j, i)
 		}
+	}
+}
+
+func TestCPUAndNodeShow(t *testing.T) {
+	var (
+		assert = require.New(t)
+		slice  = map[int][]string{}
+		nmask  = NodeMask()
+	)
+
+	for i := 0; i < nmask.Len(); i++ {
+		if !nmask.Get(i) {
+			continue
+		}
+		var cpu []string
+		m, err := NodeToCPUMask(i)
+		assert.NoError(err, "node %d", i)
+		for j := 0; j < m.Len(); j++ {
+			if m.Get(j) {
+				cpu = append(cpu, fmt.Sprint(j))
+			}
+		}
+		slice[i] = cpu
+	}
+
+	for node, cpu := range slice {
+		t.Log(fmt.Sprintf("node %d cpus: %s", node, strings.Join(cpu, " ")))
 	}
 }

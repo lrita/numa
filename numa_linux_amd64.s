@@ -13,7 +13,7 @@ TEXT ·getcpu(SB), NOSPLIT|NEEDCTXT, $0-0 // this function is running g0 stack, 
 	//
 	// https://github.com/golang/go/issues/20427#issuecomment-343255844
 
-	MOVQ	SP, BP	        // Save old SP; BP unchanged by C code.
+	MOVQ	SP, R12	        // Save old SP; BP unchanged by C code.
 
 	MOVQ	8(DX), DI       // &cpu
 	MOVQ	16(DX), SI      // &node
@@ -25,7 +25,7 @@ TEXT ·getcpu(SB), NOSPLIT|NEEDCTXT, $0-0 // this function is running g0 stack, 
 	MOVQ	·vdsoGetCPU(SB), AX
 	CALL	AX
 
-	MOVQ	BP, SP		// Restore real SP
+	MOVQ	R12, SP		// Restore real SP
 
 	RET
 
