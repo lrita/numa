@@ -187,7 +187,7 @@ func TestGetNodeAndCPU(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for i := 0; i < 100; i++ {
+			for i := 0; i < 1000; i++ {
 				cpu, node := GetCPUAndNode()
 				mu.Lock()
 				cpum[node].Set(cpu, true)
