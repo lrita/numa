@@ -12,7 +12,7 @@ import (
 
 func TestNotAvailable(t *testing.T) {
 	if Available() {
-		t.Skip("TestNotAvailable")
+		t.Skip("skip by available")
 	}
 	assert := require.New(t)
 	_, err := GetMemPolicy(nil, nil, 0)
@@ -115,12 +115,13 @@ func TestGetMemAllowedNodeMaskAndBind(t *testing.T) {
 		assert.NoError(Bind(mask))
 	} else {
 		assert.Equal(syscall.ENOSYS, err)
+		t.Skip("skip by not available")
 	}
 }
 
 func TestRunOnNodeAndRunningNodesMask(t *testing.T) {
 	if !Available() {
-		t.Skip()
+		t.Skip("skip by not available")
 	}
 	assert := require.New(t)
 	mask, err := RunningNodesMask()
@@ -160,7 +161,7 @@ func TestRunOnNodeAndRunningNodesMask(t *testing.T) {
 
 func TestMBind(t *testing.T) {
 	if !Available() {
-		t.Skip()
+		t.Skip("skip by not available")
 	}
 	assert := require.New(t)
 
@@ -170,7 +171,7 @@ func TestMBind(t *testing.T) {
 
 func TestGetNodeAndCPU(t *testing.T) {
 	if !Available() {
-		t.Skip("not available")
+		t.Skip("skip by not available")
 	}
 	var (
 		nodem  = NewBitmask(NodePossibleCount())
@@ -186,7 +187,7 @@ func TestGetNodeAndCPU(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for i := 0; i < 100; i++ {
+			for i := 0; i < 1000; i++ {
 				cpu, node := GetCPUAndNode()
 				mu.Lock()
 				cpum[node].Set(cpu, true)
