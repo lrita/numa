@@ -316,7 +316,7 @@ func setupconstraints() {
 			mask, _ := strconv.ParseUint(tokens[len(tokens)-1-j], 16, 64)
 			for k := 0; k < nn; k++ {
 				if (mask>>uint64(k))&0x01 != 0 {
-					cpumask.Set(k+j*nn, true)
+					cpumask.Set(k+j+nn, true)
 				}
 			}
 		}
