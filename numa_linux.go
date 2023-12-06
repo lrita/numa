@@ -310,16 +310,7 @@ func setupconstraints() {
 			continue
 		}
 		nn := 32
-		cpumask := NewBitmask(CPUCount())
-		tokens := strings.Split(strings.TrimSpace(string(d)), ",")
-		for j := 0; j < len(tokens); j++ {
-			mask, _ := strconv.ParseUint(tokens[len(tokens)-1-j], 16, 64)
-			for k := 0; k < nn; k++ {
-				if (mask>>uint64(k))&0x01 != 0 {
-					cpumask.Set(k+j*nn, true)
-				}
-			}
-		}
+		cpumask := parseCPUMapMask(string(d), nn, CPUCount())
 		node2cpu[i] = cpumask
 		for j := 0; j < cpumask.Len(); j++ {
 			if cpumask.Get(j) {
@@ -327,6 +318,22 @@ func setupconstraints() {
 			}
 		}
 	}
+}
+
+func parseCPUMapMask(d string, nn int, cpucount int) Bitmask {
+	cpumask := NewBitmask(cpucount)
+	tokens := strings.Split(strings.TrimSpace(d), ",")
+	rollover := 0
+	for j := 0; j < len(tokens); j++ {
+		mask, _ := strconv.ParseUint(tokens[len(tokens)-1-j], 16, 64)
+		for k := 0; k < nn; k++ {
+			if (mask>>uint64(k))&0x01 != 0 {
+				cpumask.Set(k+rollover, true)
+			}
+		}
+		rollover += nn
+	}
+	return cpumask
 }
 
 // NodeMemSize64 return the memory total size and free size of given node.
