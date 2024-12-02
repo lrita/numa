@@ -50,4 +50,9 @@ func TestCPUMaskParse(t *testing.T) {
 	if cpumask3.String() != "00000000FFFFFFFF,00000000FFFFFFFF" {
 		t.Fatalf("Failed to parse CPU Mask 3 correctly, Expected %v but got %v", "00000000FFFFFFFF,00000000FFFFFFFF", cpumask3.String())
 	}
+
+	cpumask4 := parseCPUMapMask("0003ff,f0003fff", 32, 64)
+	if cpumask4.String() != "000003FFF0003FFF" {
+		t.Fatalf("Failed to parse CPU Mask 4 correctly, Expected %v but got %v", "000003FFF0003FFF", cpumask4.String())
+	}
 }

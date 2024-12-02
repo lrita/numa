@@ -166,9 +166,32 @@ func add(p unsafe.Pointer, x uintptr) unsafe.Pointer {
 	return unsafe.Pointer(uintptr(p) + x)
 }
 
-//go:linkname gostringnocopy runtime.gostringnocopy
-//go:nosplit
-func gostringnocopy(str *byte) string
+type stringStruct struct {
+	str unsafe.Pointer
+	len int
+}
+
+const maxAlloc = 1024
+
+func findnull(s *byte) int {
+	if s == nil {
+		return 0
+	}
+
+	p := (*[maxAlloc/2/2 - 1]byte)(unsafe.Pointer(s))
+	l := 0
+	for p[l] != 0 {
+		l++
+	}
+	return l
+}
+
+// Substitute for runtime.gostringnocopy.
+func gostringnocopy(str *byte) string {
+	ss := stringStruct{str: unsafe.Pointer(str), len: findnull(str)}
+	s := *(*string)(unsafe.Pointer(&ss))
+	return s
+}
 
 func vdsoInitFromSysinfoEhdr(info *vdsoInfo, hdr *elfEhdr) {
 	info.valid = false
