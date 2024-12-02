@@ -34,3 +34,25 @@ func TestCPUAndNodeShow(t *testing.T) {
 		t.Log(fmt.Sprintf("node %d cpus: %s", node, strings.Join(cpu, " ")))
 	}
 }
+
+func TestCPUMaskParse(t *testing.T) {
+	cpumask1 := parseCPUMapMask("000f,ff000fff", 32, 64)
+	if cpumask1.String() != "0000000FFF000FFF" {
+		t.Fatalf("Failed to parse CPU Mask 1 correctly, Expected %v but got %v", "0000000FFF000FFF", cpumask1.String())
+	}
+
+	cpumask2 := parseCPUMapMask("fff0,00fff000", 32, 64)
+	if cpumask2.String() != "0000FFF000FFF000" {
+		t.Fatalf("Failed to parse CPU Mask 2 correctly")
+	}
+
+	cpumask3 := parseCPUMapMask("00000000,00000000,00000000,00000000,00000000,ffffffff,00000000,ffffffff", 32, 128)
+	if cpumask3.String() != "00000000FFFFFFFF,00000000FFFFFFFF" {
+		t.Fatalf("Failed to parse CPU Mask 3 correctly, Expected %v but got %v", "00000000FFFFFFFF,00000000FFFFFFFF", cpumask3.String())
+	}
+
+	cpumask4 := parseCPUMapMask("0003ff,f0003fff", 32, 64)
+	if cpumask4.String() != "000003FFF0003FFF" {
+		t.Fatalf("Failed to parse CPU Mask 4 correctly, Expected %v but got %v", "000003FFF0003FFF", cpumask4.String())
+	}
+}

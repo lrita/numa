@@ -1,4 +1,4 @@
-module github.com/lrita/numa
+module github.com/benjojo/numa
 
 go 1.12
 
